@@ -17,7 +17,7 @@ const geistMono = localFont({
 
 // Metadata for the application
 export const metadata: Metadata = {
-  title: "E-Sky Dashboard",
+  title: "e-sky",
   description:
     "View real-time transfers, approvals, and ownership data for E-Sky",
 };
