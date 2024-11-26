@@ -77,6 +77,9 @@ export default function Transfers() {
     });
   };
 
+  const formatValue = (value) =>
+    parseInt(value).toLocaleString("en-US", { style: "decimal" });
+
   return (
     <div className="bg-gray-900 text-white min-h-screen p-6">
       {/* Page Title */}
@@ -86,8 +89,8 @@ export default function Transfers() {
         </CardHeader>
         <CardContent>
           <p>
-            Explore token transfers on the USDe blockchain. Filter and sort as
-            needed.
+            Explore token transfers on the USDe blockchain. Use filters to
+            refine your search and view transaction details.
           </p>
         </CardContent>
       </Card>
@@ -95,7 +98,7 @@ export default function Transfers() {
       {/* Filters Section */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
+          <CardTitle className="text-lg font-semibold">Filters</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -181,7 +184,9 @@ export default function Transfers() {
       {/* Transfers Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Transfers Data</CardTitle>
+          <CardTitle className="text-lg font-semibold">
+            Transfers Data
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -189,45 +194,45 @@ export default function Transfers() {
           ) : error ? (
             <p className="text-red-500">Error: {error}</p>
           ) : transfers.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Block</TableHead>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Transaction Hash</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transfers.map((transfer) => (
-                  <TableRow key={transfer.id}>
-                    <TableCell>{transfer.from}</TableCell>
-                    <TableCell>{transfer.to}</TableCell>
-                    <TableCell>
-                      {parseInt(transfer.value).toLocaleString()}
-                    </TableCell>
-                    <TableCell>{transfer.block_number}</TableCell>
-                    <TableCell>
-                      {new Date(
-                        parseInt(transfer.timestamp_) * 1000
-                      ).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <a
-                        href={`https://etherscan.io/tx/${transfer.transactionHash_}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:underline"
-                      >
-                        View
-                      </a>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>From</TableHead>
+                    <TableHead>To</TableHead>
+                    <TableHead>Value</TableHead>
+                    <TableHead>Block</TableHead>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Transaction Hash</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {transfers.map((transfer) => (
+                    <TableRow key={transfer.id}>
+                      <TableCell>{transfer.from}</TableCell>
+                      <TableCell>{transfer.to}</TableCell>
+                      <TableCell>{formatValue(transfer.value)}</TableCell>
+                      <TableCell>{transfer.block_number}</TableCell>
+                      <TableCell>
+                        {new Date(
+                          parseInt(transfer.timestamp_) * 1000
+                        ).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <a
+                          href={`https://etherscan.io/tx/${transfer.transactionHash_}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:underline"
+                        >
+                          View
+                        </a>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
             <p className="text-gray-400">No transfers found.</p>
           )}
