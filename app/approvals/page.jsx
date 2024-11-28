@@ -65,7 +65,7 @@ export default function ApprovalsPage() {
     });
 
     try {
-      const response = await fetch(`/api/approvals?${params.toString()}`);
+      const response = await fetch(`/api/token/approvals?${params.toString()}`);
       const data = await response.json();
       if (response.ok) {
         setApprovals(data);

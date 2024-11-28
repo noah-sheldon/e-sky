@@ -61,7 +61,9 @@ export default function MinterUpdatedPage() {
     });
 
     try {
-      const response = await fetch(`/api/minter-updateds?${params.toString()}`);
+      const response = await fetch(
+        `/api/token/minter-updated?${params.toString()}`
+      );
       const data = await response.json();
       if (response.ok) {
         setEvents(data);

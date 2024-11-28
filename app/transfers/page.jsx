@@ -61,7 +61,7 @@ export default function TransfersPage() {
     });
 
     try {
-      const response = await fetch(`/api/transfers?${params.toString()}`);
+      const response = await fetch(`/api/token/transfers?${params.toString()}`);
       const data = await response.json();
       if (response.ok) {
         setTransfers(data);

@@ -62,7 +62,7 @@ export default function OwnershipTransferredPage() {
 
     try {
       const response = await fetch(
-        `/api/ownership-transferreds?${params.toString()}`
+        `/api/token/ownership-transfers?${params.toString()}`
       );
       const data = await response.json();
       if (response.ok) {

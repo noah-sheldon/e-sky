@@ -17,7 +17,7 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch("/api/home-stats");
+        const response = await fetch("/api/token/stats");
         const result = await response.json();
         if (result.success) {
           setDataSummary(result.data);
