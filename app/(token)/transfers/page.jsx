@@ -2,9 +2,6 @@
 
 import * as React from "react";
 import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ExternalLinkIcon,
   CopyIcon,
   RefreshCwIcon as ReloadIcon,
 } from "lucide-react";
