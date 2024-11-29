@@ -119,7 +119,7 @@ const calculateTransferMetrics = (transfers) => {
   }, {});
   const topTransferAddresses = Object.entries(transferCounts)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
+    .slice(1, 11)
     .map(([address, count]) => ({ address, count }));
 
   return {
