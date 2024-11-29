@@ -88,7 +88,7 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
+  if (loading || !data || !tokenData) {
     return (
       <div className="p-6 space-y-8 max-w-[1400px] mx-auto">
         {/* Header Skeleton */}
