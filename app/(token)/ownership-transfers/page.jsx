@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import {
+  ExternalLinkIcon,
+  CopyIcon,
   ArrowDownIcon,
   ArrowUpIcon,
-  ExternalLinkIcon,
   RefreshCwIcon as ReloadIcon,
 } from "lucide-react";
 import {
@@ -33,11 +34,18 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 export default function OwnershipTransferredPage() {
   const [events, setEvents] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  const { toast } = useToast();
 
   // Filters and Sorting
   const [filters, setFilters] = React.useState({
@@ -48,7 +56,7 @@ export default function OwnershipTransferredPage() {
     orderDirection: "desc",
   });
 
-  const fetchOwnershipTransfers = async () => {
+  const fetchOwnershipTransfers = React.useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -75,11 +83,11 @@ export default function OwnershipTransferredPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   React.useEffect(() => {
     fetchOwnershipTransfers();
-  }, []);
+  }, [fetchOwnershipTransfers]);
 
   const handleFilterReset = () => {
     setFilters({
@@ -94,20 +102,31 @@ export default function OwnershipTransferredPage() {
   const formatAddress = (address) =>
     `${address.slice(0, 6)}...${address.slice(-4)}`;
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to Clipboard",
+      description: text,
+      variant: "default",
+      duration: 3000,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-800">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="border-gray-800 bg-gray-900/50 backdrop-blur">
+          <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="text-3xl font-bold tracking-tight text-yellow-300">
+              <CardTitle className="text-3xl font-bold text-blue-600">
                 Ownership Transfers
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription>
                 Explore ownership transfer events on the blockchain. Use filters
                 to refine your search and view event details.
               </CardDescription>
@@ -115,123 +134,95 @@ export default function OwnershipTransferredPage() {
           </Card>
         </motion.div>
 
+        {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="border-gray-800 bg-gray-900/50 backdrop-blur">
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-xl font-semibold">Filters</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="previousOwner"
-                    className="text-sm font-medium text-gray-300"
-                  >
-                    Previous Owner Address
-                  </label>
-                  <Input
-                    id="previousOwner"
-                    placeholder="0x..."
-                    value={filters.previousOwner}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        previousOwner: e.target.value,
-                      }))
-                    }
-                    className="border-gray-800 bg-gray-800/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="newOwner"
-                    className="text-sm font-medium text-gray-300"
-                  >
-                    New Owner Address
-                  </label>
-                  <Input
-                    id="newOwner"
-                    placeholder="0x..."
-                    value={filters.newOwner}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        newOwner: e.target.value,
-                      }))
-                    }
-                    className="border-gray-800 bg-gray-800/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">
-                    Order Direction
-                  </label>
-                  <Select
-                    value={filters.orderDirection}
-                    onValueChange={(value) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        orderDirection: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="border-gray-800 bg-gray-800/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="desc">
-                        <span className="flex items-center gap-2">
-                          <ArrowDownIcon className="h-4 w-4" />
-                          Descending
-                        </span>
+                <Input
+                  id="previousOwner"
+                  placeholder="Previous Owner Address"
+                  value={filters.previousOwner}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      previousOwner: e.target.value,
+                    }))
+                  }
+                  className="border-gray-300"
+                />
+                <Input
+                  id="newOwner"
+                  placeholder="New Owner Address"
+                  value={filters.newOwner}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      newOwner: e.target.value,
+                    }))
+                  }
+                  className="border-gray-300"
+                />
+                <Select
+                  value={filters.orderDirection}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      orderDirection: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="border-gray-300">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desc">
+                      <span className="flex items-center gap-2">
+                        <ArrowDownIcon className="h-4 w-4" />
+                        Descending
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="asc">
+                      <span className="flex items-center gap-2">
+                        <ArrowUpIcon className="h-4 w-4" />
+                        Ascending
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.first}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      first: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="border-gray-300">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50, 100].map((value) => (
+                      <SelectItem key={value} value={value.toString()}>
+                        {value} results
                       </SelectItem>
-                      <SelectItem value="asc">
-                        <span className="flex items-center gap-2">
-                          <ArrowUpIcon className="h-4 w-4" />
-                          Ascending
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">
-                    Results Limit
-                  </label>
-                  <Select
-                    value={filters.first}
-                    onValueChange={(value) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        first: value,
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="border-gray-800 bg-gray-800/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[10, 25, 50, 100].map((value) => (
-                        <SelectItem key={value} value={value.toString()}>
-                          {value} results
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-4">
                 <Button
                   onClick={fetchOwnershipTransfers}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-500 text-white hover:bg-blue-600"
                   disabled={loading}
                 >
                   {loading ? (
@@ -246,7 +237,7 @@ export default function OwnershipTransferredPage() {
                 <Button
                   onClick={handleFilterReset}
                   variant="outline"
-                  className="border-gray-700 hover:bg-gray-800"
+                  className="border-gray-300 hover:bg-gray-100"
                 >
                   Reset Filters
                 </Button>
@@ -255,12 +246,13 @@ export default function OwnershipTransferredPage() {
           </Card>
         </motion.div>
 
+        {/* Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="border-gray-800 bg-gray-900/50 backdrop-blur">
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-xl font-semibold">
                 Ownership Transfer History
@@ -269,73 +261,85 @@ export default function OwnershipTransferredPage() {
             <CardContent>
               {loading ? (
                 <div className="space-y-4">
-                  <Skeleton className="h-12 w-full bg-gray-800" />
-                  <Skeleton className="h-12 w-full bg-gray-800" />
-                  <Skeleton className="h-12 w-full bg-gray-800" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
                 </div>
               ) : error ? (
-                <div className="rounded-lg bg-red-500/10 p-4 text-red-400">
-                  <p>Error: {error}</p>
-                </div>
+                <div className="text-red-500">{error}</div>
               ) : events.length > 0 ? (
-                <div className="relative overflow-x-auto rounded-lg border border-gray-800">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-gray-800 hover:bg-gray-800/50">
-                        <TableHead className="text-gray-300">
-                          Previous Owner
-                        </TableHead>
-                        <TableHead className="text-gray-300">
-                          New Owner
-                        </TableHead>
-                        <TableHead className="text-gray-300">Block</TableHead>
-                        <TableHead className="text-gray-300">
-                          Timestamp
-                        </TableHead>
-                        <TableHead className="text-right text-gray-300">
-                          Action
-                        </TableHead>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Previous Owner</TableHead>
+                      <TableHead>New Owner</TableHead>
+                      <TableHead>Block</TableHead>
+                      <TableHead>Timestamp</TableHead>
+                      <TableHead>Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {events.map((event) => (
+                      <TableRow key={event.id}>
+                        <TableCell>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <div className="flex items-center">
+                                {formatAddress(event.previousOwner)}
+                                <CopyIcon
+                                  className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
+                                  onClick={() =>
+                                    copyToClipboard(event.previousOwner)
+                                  }
+                                />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{event.previousOwner}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <div className="flex items-center">
+                                {formatAddress(event.newOwner)}
+                                <CopyIcon
+                                  className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
+                                  onClick={() =>
+                                    copyToClipboard(event.newOwner)
+                                  }
+                                />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{event.newOwner}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>{event.block_number}</TableCell>
+                        <TableCell>
+                          {new Date(
+                            parseInt(event.timestamp_) * 1000
+                          ).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <a
+                            href={`https://etherscan.io/tx/${event.transactionHash_}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:underline"
+                          >
+                            View
+                          </a>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {events.map((event) => (
-                        <TableRow
-                          key={event.id}
-                          className="border-gray-800 hover:bg-gray-800/50"
-                        >
-                          <TableCell className="font-mono text-sm">
-                            {formatAddress(event.previousOwner)}
-                          </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            {formatAddress(event.newOwner)}
-                          </TableCell>
-                          <TableCell>{event.block_number}</TableCell>
-                          <TableCell>
-                            {new Date(
-                              parseInt(event.timestamp_) * 1000
-                            ).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <a
-                              href={`https://etherscan.io/tx/${event.transactionHash_}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300"
-                            >
-                              View
-                              <ExternalLinkIcon className="h-4 w-4" />
-                            </a>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                    ))}
+                  </TableBody>
+                </Table>
               ) : (
-                <div className="rounded-lg bg-gray-800/50 p-8 text-center">
-                  <p className="text-gray-400">
-                    No OwnershipTransferred events found matching your criteria.
-                  </p>
+                <div className="text-center text-gray-500">
+                  No OwnershipTransferred events found.
                 </div>
               )}
             </CardContent>
