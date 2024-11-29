@@ -5,6 +5,7 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   ExternalLinkIcon,
+  CopyIcon,
   RefreshCwIcon as ReloadIcon,
 } from "lucide-react";
 import {
@@ -33,6 +34,13 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
+import { convertWeiToEth } from "@/lib/utils";
 
 export default function TransfersPage() {
   const [transfers, setTransfers] = React.useState([]);
@@ -48,7 +56,9 @@ export default function TransfersPage() {
     orderDirection: "desc",
   });
 
-  const fetchTransfers = async () => {
+  const { toast } = useToast();
+
+  const fetchTransfers = React.useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -73,11 +83,11 @@ export default function TransfersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   React.useEffect(() => {
     fetchTransfers();
-  }, []);
+  }, [fetchTransfers]);
 
   const handleFilterReset = () => {
     setFilters({
@@ -95,20 +105,30 @@ export default function TransfersPage() {
   const formatAddress = (address) =>
     `${address.slice(0, 6)}...${address.slice(-4)}`;
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: `Address ${text} copied to clipboard.`,
+      duration: 3000,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 text-white">
+    <div className="min-h-screen bg-white text-gray-800">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
+        {/* Header Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="border-gray-800 bg-gray-900/50 backdrop-blur">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-3xl font-bold tracking-tight text-yellow-300">
+              <CardTitle className="text-3xl font-bold text-blue-600">
                 Transfers Explorer
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription>
                 Explore token transfers on the USDe blockchain. Use filters to
                 refine your search and view transaction details.
               </CardDescription>
@@ -116,111 +136,71 @@ export default function TransfersPage() {
           </Card>
         </motion.div>
 
+        {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="border-gray-800 bg-gray-900/50 backdrop-blur">
+          <Card>
             <CardHeader>
               <CardTitle className="text-xl font-semibold">Filters</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="from"
-                    className="text-sm font-medium text-gray-300"
-                  >
-                    From Address
-                  </label>
-                  <Input
-                    id="from"
-                    placeholder="0x..."
-                    value={filters.from}
-                    onChange={(e) =>
-                      setFilters((prev) => ({ ...prev, from: e.target.value }))
-                    }
-                    className="border-gray-800 bg-gray-800/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="to"
-                    className="text-sm font-medium text-gray-300"
-                  >
-                    To Address
-                  </label>
-                  <Input
-                    id="to"
-                    placeholder="0x..."
-                    value={filters.to}
-                    onChange={(e) =>
-                      setFilters((prev) => ({ ...prev, to: e.target.value }))
-                    }
-                    className="border-gray-800 bg-gray-800/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">
-                    Order Direction
-                  </label>
-                  <Select
-                    value={filters.orderDirection}
-                    onValueChange={(value) =>
-                      setFilters((prev) => ({ ...prev, orderDirection: value }))
-                    }
-                  >
-                    <SelectTrigger className="border-gray-800 bg-gray-800/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="desc">
-                        <span className="flex items-center gap-2">
-                          <ArrowDownIcon className="h-4 w-4" />
-                          Descending
-                        </span>
+                <Input
+                  id="from"
+                  placeholder="From Address"
+                  value={filters.from}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, from: e.target.value }))
+                  }
+                />
+                <Input
+                  id="to"
+                  placeholder="To Address"
+                  value={filters.to}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, to: e.target.value }))
+                  }
+                />
+                <Select
+                  value={filters.orderDirection}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({ ...prev, orderDirection: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desc">Descending</SelectItem>
+                    <SelectItem value="asc">Ascending</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.first}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({ ...prev, first: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50, 100].map((value) => (
+                      <SelectItem key={value} value={value.toString()}>
+                        {value} results
                       </SelectItem>
-                      <SelectItem value="asc">
-                        <span className="flex items-center gap-2">
-                          <ArrowUpIcon className="h-4 w-4" />
-                          Ascending
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">
-                    Results Limit
-                  </label>
-                  <Select
-                    value={filters.first}
-                    onValueChange={(value) =>
-                      setFilters((prev) => ({ ...prev, first: value }))
-                    }
-                  >
-                    <SelectTrigger className="border-gray-800 bg-gray-800/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[10, 25, 50, 100].map((value) => (
-                        <SelectItem key={value} value={value.toString()}>
-                          {value} results
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-4">
                 <Button
                   onClick={fetchTransfers}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
                   disabled={loading}
                 >
                   {loading ? (
@@ -232,11 +212,7 @@ export default function TransfersPage() {
                     "Apply Filters"
                   )}
                 </Button>
-                <Button
-                  onClick={handleFilterReset}
-                  variant="outline"
-                  className="border-gray-700 hover:bg-gray-800"
-                >
+                <Button onClick={handleFilterReset} variant="outline">
                   Reset Filters
                 </Button>
               </div>
@@ -244,12 +220,13 @@ export default function TransfersPage() {
           </Card>
         </motion.div>
 
+        {/* Transfer Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="border-gray-800 bg-gray-900/50 backdrop-blur">
+          <Card>
             <CardHeader>
               <CardTitle className="text-xl font-semibold">
                 Transfer History
@@ -258,71 +235,87 @@ export default function TransfersPage() {
             <CardContent>
               {loading ? (
                 <div className="space-y-4">
-                  <Skeleton className="h-12 w-full bg-gray-800" />
-                  <Skeleton className="h-12 w-full bg-gray-800" />
-                  <Skeleton className="h-12 w-full bg-gray-800" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
                 </div>
               ) : error ? (
                 <div className="rounded-lg bg-red-500/10 p-4 text-red-400">
                   <p>Error: {error}</p>
                 </div>
               ) : transfers.length > 0 ? (
-                <div className="relative overflow-x-auto rounded-lg border border-gray-800">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-gray-800 hover:bg-gray-800/50">
-                        <TableHead className="text-gray-300">From</TableHead>
-                        <TableHead className="text-gray-300">To</TableHead>
-                        <TableHead className="text-gray-300">Value</TableHead>
-                        <TableHead className="text-gray-300">Block</TableHead>
-                        <TableHead className="text-gray-300">
-                          Timestamp
-                        </TableHead>
-                        <TableHead className="text-right text-gray-300">
-                          Action
-                        </TableHead>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>From</TableHead>
+                      <TableHead>To</TableHead>
+                      <TableHead>Value</TableHead>
+                      <TableHead>Block</TableHead>
+                      <TableHead>Timestamp</TableHead>
+                      <TableHead>Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transfers.map((transfer) => (
+                      <TableRow key={transfer.id}>
+                        <TableCell>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <div className="flex items-center">
+                                {formatAddress(transfer.from)}
+                                <CopyIcon
+                                  className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
+                                  onClick={() => copyToClipboard(transfer.from)}
+                                />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{transfer.from}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <div className="flex items-center">
+                                {formatAddress(transfer.to)}
+                                <CopyIcon
+                                  className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
+                                  onClick={() => copyToClipboard(transfer.to)}
+                                />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{transfer.to}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell>
+                          {formatValue(convertWeiToEth(transfer.value))}
+                        </TableCell>
+                        <TableCell>{transfer.block_number}</TableCell>
+                        <TableCell>
+                          {new Date(
+                            parseInt(transfer.timestamp_) * 1000
+                          ).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <a
+                            href={`https://etherscan.io/tx/${transfer.transactionHash_}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:underline"
+                          >
+                            View
+                          </a>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transfers.map((transfer) => (
-                        <TableRow
-                          key={transfer.id}
-                          className="border-gray-800 hover:bg-gray-800/50"
-                        >
-                          <TableCell className="font-mono text-sm">
-                            {formatAddress(transfer.from)}
-                          </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            {formatAddress(transfer.to)}
-                          </TableCell>
-                          <TableCell>{formatValue(transfer.value)}</TableCell>
-                          <TableCell>{transfer.block_number}</TableCell>
-                          <TableCell>
-                            {new Date(
-                              parseInt(transfer.timestamp_) * 1000
-                            ).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <a
-                              href={`https://etherscan.io/tx/${transfer.transactionHash_}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300"
-                            >
-                              View
-                              <ExternalLinkIcon className="h-4 w-4" />
-                            </a>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                    ))}
+                  </TableBody>
+                </Table>
               ) : (
-                <div className="rounded-lg bg-gray-800/50 p-8 text-center">
-                  <p className="text-gray-400">
-                    No transfers found matching your criteria.
-                  </p>
+                <div className="text-center text-gray-500">
+                  No transfers found.
                 </div>
               )}
             </CardContent>

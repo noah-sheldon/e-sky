@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ExternalLinkIcon, CopyIcon } from "lucide-react";
+import { CopyIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -279,7 +279,9 @@ export default function ApprovalsPage() {
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
-                        <TableCell>{convertWeiToEth(approval.value)}</TableCell>
+                        <TableCell>
+                          {formatValue(convertWeiToEth(approval.value))}
+                        </TableCell>
                         <TableCell>{approval.block_number}</TableCell>
                         <TableCell>
                           {new Date(
