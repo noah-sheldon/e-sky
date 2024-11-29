@@ -45,7 +45,7 @@ export default function Navbar() {
             <NavigationMenuItem>
               <NavigationMenuTrigger className="relative group">
                 <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 group-hover:text-blue-100 group-hover:bg-blue-700 group-hover:shadow-lg cursor-pointer">
-                  USDe Mainnet
+                  USDe Token
                 </span>
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
@@ -56,6 +56,52 @@ export default function Navbar() {
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
                       Transfers
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/approvals"
+                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      Approvals
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/ownership-transfers"
+                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      Ownership Transfers
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/minter-updated"
+                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      Minter Updates
+                    </Link>
+                  </li>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="relative group">
+                <Link
+                  href="/stake"
+                  className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 group-hover:text-blue-100 group-hover:bg-blue-700 group-hover:shadow-lg"
+                >
+                  sUSDe Token
+                </Link>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
+                <ul className="flex flex-col gap-3">
+                  <li>
+                    <Link
+                      href="/stake/deposits"
+                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      Deposits
                     </Link>
                   </li>
                   <li>
