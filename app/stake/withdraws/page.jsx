@@ -54,7 +54,7 @@ export default function WithdrawsPage() {
   });
   const { toast } = useToast();
 
-  const fetchWithdraws = async () => {
+  const fetchWithdraws = React.useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -72,15 +72,15 @@ export default function WithdrawsPage() {
       const data = await response.json();
       setWithdraws(data);
     } catch (err) {
-      setError("Failed to fetch withdraws. Please try again.");
+      setError("Failed to fetch withdraws. Please try again.", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   React.useEffect(() => {
     fetchWithdraws();
-  }, [filters]);
+  }, [fetchWithdraws]);
 
   const handleFilterReset = () => {
     setFilters({
