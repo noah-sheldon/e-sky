@@ -8,7 +8,6 @@ import {
   Copy,
   Database,
   LineChart,
-  Loader2,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -37,11 +36,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 
 // Utility function to format large numbers as ETH with commas
-const formatToEth = (value) =>
-  new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value / 1e18);
+const formatToEth = (value) => new Intl.NumberFormat("en-US").format(value);
 
 // Utility function to calculate percentage change
 const getPercentageChange = (current, previous) => {
@@ -53,8 +48,7 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { toast } = useToast();
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -228,7 +222,7 @@ const Dashboard = () => {
                 <div className="text-2xl font-bold">
                   {metric.title === "Active Users"
                     ? metric.value.toLocaleString() // Display raw count for Active Users
-                    : `${metric.value} ETH`}
+                    : `${formatToEth(metric.value)} ETH`}
                 </div>
                 {metric.change !== null && (
                   <Progress value={50 + metric.change} className="h-1 mt-2" />
@@ -262,7 +256,7 @@ const Dashboard = () => {
                     <AddressWithCopyTooltip address={staker.owner} />
                   </TableCell>
                   <TableCell className="text-right font-mono">
-                    {staker.assets}
+                    {formatToEth(staker.assets)}
                   </TableCell>
                 </TableRow>
               ))}
