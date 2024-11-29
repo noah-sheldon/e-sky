@@ -15,7 +15,7 @@ export default function Navbar() {
 
   return (
     <div className="bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-white shadow-lg sticky top-0 z-50">
-      <div className="container mx-auto py-4 flex items-center justify-between">
+      <div className="container mx-auto py-4 flex items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3">
@@ -89,12 +89,9 @@ export default function Navbar() {
             {/* sUSDe Token Dropdown */}
             <NavigationMenuItem>
               <NavigationMenuTrigger>
-                <Link
-                  href="/stake"
-                  className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg"
-                >
+                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
                   sUSDe Token
-                </Link>
+                </span>
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
                 <ul className="flex flex-col gap-3">
@@ -122,14 +119,6 @@ export default function Navbar() {
                       Rewards Received
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/minter-updated"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Minter Updates
-                    </Link>
-                  </li>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
@@ -137,19 +126,18 @@ export default function Navbar() {
         </NavigationMenu>
 
         {/* Mobile Menu Button */}
-        <div className="flex md:hidden items-center">
-          <button
-            className="text-white bg-blue-700 px-3 py-2 rounded-md shadow-md focus:outline-none"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            Menu
-          </button>
-        </div>
+        <button
+          className="md:hidden bg-blue-700 px-3 py-2 rounded-md shadow-md focus:outline-none"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle Menu"
+        >
+          Menu
+        </button>
       </div>
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-blue-900 text-white p-4">
+        <div className="md:hidden bg-blue-900 text-white p-4 shadow-lg">
           <NavigationMenu className="flex flex-col gap-4">
             <NavigationMenuList className="flex flex-col gap-6">
               {/* Dashboard */}
