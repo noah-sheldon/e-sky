@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import {
-  ExternalLinkIcon,
   CopyIcon,
   ArrowDownIcon,
   ArrowUpIcon,
