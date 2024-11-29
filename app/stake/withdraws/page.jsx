@@ -21,36 +21,40 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import {
   Tooltip,
-  TooltipContent,
   TooltipTrigger,
+  TooltipContent,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { convertWeiToEth } from "@/lib/utils";
 
-export default function DepositsPage() {
-  const [deposits, setDeposits] = React.useState([]);
+export default function WithdrawsPage() {
+  const [withdraws, setWithdraws] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
-  const { toast } = useToast();
-
-  // Filters and Sorting
   const [filters, setFilters] = React.useState({
     sender: "",
+    receiver: "",
     owner: "",
     first: "10",
     orderBy: "timestamp_",
     orderDirection: "desc",
-    minAssets: "",
-    maxAssets: "",
   });
+  const { toast } = useToast();
 
-  const fetchDeposits = React.useCallback(async () => {
+  const fetchWithdraws = async () => {
     setLoading(true);
     setError(null);
 
@@ -59,35 +63,33 @@ export default function DepositsPage() {
       orderBy: filters.orderBy,
       orderDirection: filters.orderDirection,
       ...(filters.sender && { sender: filters.sender }),
+      ...(filters.receiver && { receiver: filters.receiver }),
       ...(filters.owner && { owner: filters.owner }),
-      ...(filters.minAssets && { minAssets: filters.minAssets }),
-      ...(filters.maxAssets && { maxAssets: filters.maxAssets }),
     });
 
     try {
-      const response = await fetch(`/api/stake/deposits?${params.toString()}`);
+      const response = await fetch(`/api/stake/withdraws?${params.toString()}`);
       const data = await response.json();
-      setDeposits(data);
+      setWithdraws(data);
     } catch (err) {
-      setError("Failed to fetch deposits. Please try again.", err);
+      setError("Failed to fetch withdraws. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  };
 
   React.useEffect(() => {
-    fetchDeposits();
-  }, [fetchDeposits]);
+    fetchWithdraws();
+  }, [filters]);
 
   const handleFilterReset = () => {
     setFilters({
       sender: "",
+      receiver: "",
       owner: "",
       first: "10",
       orderBy: "timestamp_",
       orderDirection: "desc",
-      minAssets: "",
-      maxAssets: "",
     });
   };
 
@@ -115,10 +117,10 @@ export default function DepositsPage() {
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-blue-600">
-                Deposits
+                Withdrawals
               </CardTitle>
               <CardDescription className="text-gray-500">
-                View the latest deposit transactions on the staking platform.
+                View and filter withdrawal transactions on the staking platform.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -146,6 +148,18 @@ export default function DepositsPage() {
                   className="border-gray-300"
                 />
                 <Input
+                  id="receiver"
+                  placeholder="Receiver Address"
+                  value={filters.receiver}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      receiver: e.target.value,
+                    }))
+                  }
+                  className="border-gray-300"
+                />
+                <Input
                   id="owner"
                   placeholder="Owner Address"
                   value={filters.owner}
@@ -154,34 +168,29 @@ export default function DepositsPage() {
                   }
                   className="border-gray-300"
                 />
-                <Input
-                  id="minAssets"
-                  placeholder="Min Assets"
-                  value={filters.minAssets}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      minAssets: e.target.value,
-                    }))
+                <Select
+                  value={filters.first.toString()} // Ensure the value is a string
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({ ...prev, first: parseInt(value) }))
                   }
-                  className="border-gray-300"
-                />
-                <Input
-                  id="maxAssets"
-                  placeholder="Max Assets"
-                  value={filters.maxAssets}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      maxAssets: e.target.value,
-                    }))
-                  }
-                  className="border-gray-300"
-                />
+                >
+                  <SelectTrigger className="border-gray-300">
+                    <SelectValue>
+                      {filters.first} results {/* Display the selected value */}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50, 100].map((value) => (
+                      <SelectItem key={value} value={value.toString()}>
+                        {value} results
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="mt-6 flex flex-wrap gap-4">
                 <Button
-                  onClick={fetchDeposits}
+                  onClick={fetchWithdraws}
                   className="bg-blue-500 text-white hover:bg-blue-600"
                   disabled={loading}
                 >
@@ -206,7 +215,7 @@ export default function DepositsPage() {
           </Card>
         </motion.div>
 
-        {/* Deposit Table */}
+        {/* Withdraw Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -215,7 +224,7 @@ export default function DepositsPage() {
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-xl font-semibold">
-                Deposit History
+                Withdraw History
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -227,12 +236,13 @@ export default function DepositsPage() {
                 </div>
               ) : error ? (
                 <div className="text-red-500">{error}</div>
-              ) : deposits.length > 0 ? (
+              ) : withdraws.length > 0 ? (
                 <div className="relative overflow-x-auto rounded-lg border border-gray-200">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Sender</TableHead>
+                        <TableHead>Receiver</TableHead>
                         <TableHead>Owner</TableHead>
                         <TableHead>Assets</TableHead>
                         <TableHead>Shares</TableHead>
@@ -241,23 +251,39 @@ export default function DepositsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {deposits.map((deposit) => (
-                        <TableRow key={deposit.id}>
+                      {withdraws.map((withdraw) => (
+                        <TableRow key={withdraw.id}>
                           <TableCell>
                             <Tooltip>
                               <TooltipTrigger>
                                 <div className="flex items-center">
-                                  {formatAddress(deposit.sender)}
+                                  {formatAddress(withdraw.sender)}
                                   <CopyIcon
                                     className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
                                     onClick={() =>
-                                      copyToClipboard(deposit.sender)
+                                      copyToClipboard(withdraw.sender)
+                                    }
+                                  />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>{withdraw.sender}</TooltipContent>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <div className="flex items-center">
+                                  {formatAddress(withdraw.receiver)}
+                                  <CopyIcon
+                                    className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
+                                    onClick={() =>
+                                      copyToClipboard(withdraw.receiver)
                                     }
                                   />
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>{deposit.sender}</p>
+                                {withdraw.receiver}
                               </TooltipContent>
                             </Tooltip>
                           </TableCell>
@@ -265,41 +291,37 @@ export default function DepositsPage() {
                             <Tooltip>
                               <TooltipTrigger>
                                 <div className="flex items-center">
-                                  {formatAddress(deposit.owner)}
+                                  {formatAddress(withdraw.owner)}
                                   <CopyIcon
                                     className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
                                     onClick={() =>
-                                      copyToClipboard(deposit.owner)
+                                      copyToClipboard(withdraw.owner)
                                     }
                                   />
                                 </div>
                               </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{deposit.owner}</p>
-                              </TooltipContent>
+                              <TooltipContent>{withdraw.owner}</TooltipContent>
                             </Tooltip>
                           </TableCell>
+
                           <TableCell>
                             {parseInt(
-                              convertWeiToEth(deposit.assets)
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
+                              convertWeiToEth(withdraw.assets)
+                            ).toLocaleString()}
                           </TableCell>
                           <TableCell>
                             {parseInt(
-                              convertWeiToEth(deposit.shares)
+                              convertWeiToEth(withdraw.shares)
                             ).toLocaleString()}
                           </TableCell>
                           <TableCell>
                             {new Date(
-                              parseInt(deposit.timestamp_) * 1000
+                              parseInt(withdraw.timestamp_) * 1000
                             ).toLocaleString()}
                           </TableCell>
                           <TableCell>
                             <a
-                              href={`https://etherscan.io/tx/${deposit.transactionHash_}`}
+                              href={`https://etherscan.io/tx/${withdraw.transactionHash_}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-500 hover:underline"
@@ -315,7 +337,7 @@ export default function DepositsPage() {
                 </div>
               ) : (
                 <div className="text-center text-gray-500">
-                  No deposit transactions found.
+                  No withdraw transactions found.
                 </div>
               )}
             </CardContent>
