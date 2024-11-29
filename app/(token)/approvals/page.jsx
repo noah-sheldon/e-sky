@@ -1,12 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ExternalLinkIcon,
-  RefreshCwIcon as ReloadIcon,
-} from "lucide-react";
+import { ExternalLinkIcon, RefreshCwIcon as ReloadIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,13 +19,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 
@@ -50,7 +38,7 @@ export default function ApprovalsPage() {
     maxValue: "",
   });
 
-  const fetchApprovals = async () => {
+  const fetchApprovals = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -77,11 +65,11 @@ export default function ApprovalsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   React.useEffect(() => {
     fetchApprovals();
-  }, []);
+  }, [fetchApprovals]);
 
   const handleFilterReset = () => {
     setFilters({
