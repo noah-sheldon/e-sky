@@ -110,6 +110,42 @@ export default function Navbar() {
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuTrigger asChild>
+                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
+                  Mint Token
+                </span>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
+                <ul className="flex flex-col gap-3">
+                  <li>
+                    <Link
+                      href="/mint/mints"
+                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      Mints
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/stake/withdraws"
+                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      Withdrawals
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/stake/rewards-received"
+                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      Rewards Received
+                    </Link>
+                  </li>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -199,6 +235,48 @@ export default function Navbar() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Deposits
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/stake/withdraws"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Withdrawals
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/stake/rewards-received"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Rewards Received
+                      </Link>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger asChild>
+                  <span
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
+                  >
+                    Mint Token
+                  </span>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="mt-2">
+                  <ul className="flex flex-col gap-3 pl-4">
+                    <li>
+                      <Link
+                        href="/mint/mints"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Mints
                       </Link>
                     </li>
                     <li>
