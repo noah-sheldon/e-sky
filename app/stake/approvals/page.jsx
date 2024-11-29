@@ -70,7 +70,7 @@ export default function ApprovalsPage() {
       const data = await response.json();
       setApprovals(data);
     } catch (err) {
-      setError("Failed to fetch approvals. Please try again.");
+      setError("Failed to fetch approvals. Please try again.", err);
     } finally {
       setLoading(false);
     }

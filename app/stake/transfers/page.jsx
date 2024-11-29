@@ -38,7 +38,6 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { convertWeiToEth } from "@/lib/utils"; // Utility function for handling assets conversion if needed.
 
 export default function TransfersPage() {
   const [transfers, setTransfers] = React.useState([]);
@@ -70,7 +69,7 @@ export default function TransfersPage() {
       const data = await response.json();
       setTransfers(data);
     } catch (err) {
-      setError("Failed to fetch transfers. Please try again.");
+      setError("Failed to fetch transfers. Please try again.", err);
     } finally {
       setLoading(false);
     }

@@ -32,11 +32,9 @@ export default function Navbar() {
             {/* USDe Token Dropdown */}
             <NavigationMenuItem>
               <NavigationMenuTrigger>
-                <Link href="/usde">
-                  <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
-                    USDe Token
-                  </span>
-                </Link>
+                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
+                  USDe Token
+                </span>
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
                 <ul className="flex flex-col gap-3">
@@ -79,12 +77,9 @@ export default function Navbar() {
             {/* sUSDe Token Dropdown */}
             <NavigationMenuItem>
               <NavigationMenuTrigger asChild>
-                <Link
-                  href="/stake"
-                  className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer"
-                >
+                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
                   sUSDe Token
-                </Link>
+                </span>
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
                 <ul className="flex flex-col gap-3">
@@ -136,13 +131,12 @@ export default function Navbar() {
               {/* USDe Token */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger asChild>
-                  <Link
-                    href="/usde"
+                  <span
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
                   >
                     USDe Token
-                  </Link>
+                  </span>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="mt-2">
                   <ul className="flex flex-col gap-3 pl-4">
@@ -189,13 +183,12 @@ export default function Navbar() {
               {/* sUSDe Token */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger asChild>
-                  <Link
-                    href="/stake"
+                  <span
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
                   >
                     sUSDe Token
-                  </Link>
+                  </span>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="mt-2">
                   <ul className="flex flex-col gap-3 pl-4">
