@@ -170,6 +170,12 @@ const Dashboard = () => {
         data.protocolMetrics.previousTotalRewards
       ),
     },
+    {
+      title: "Active Users",
+      value: data.uniqueActiveUsers, // Directly use uniqueActiveUsers
+      icon: Users,
+      change: null, // No percentage change for active users
+    },
   ];
 
   return (
@@ -186,7 +192,7 @@ const Dashboard = () => {
       </motion.div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {metrics.map((metric, index) => (
           <motion.div
             key={metric.title}
@@ -201,24 +207,32 @@ const Dashboard = () => {
                 </CardTitle>
                 <div className="flex items-center space-x-2">
                   <metric.icon className="w-4 h-4 text-muted-foreground" />
-                  <CardDescription>
-                    {metric.change > 0 ? (
-                      <span className="text-emerald-500 flex items-center">
-                        <ArrowUp className="w-4 h-4 mr-1" />
-                        {metric.change.toFixed(2)}%
-                      </span>
-                    ) : (
-                      <span className="text-red-500 flex items-center">
-                        <ArrowDown className="w-4 h-4 mr-1" />
-                        {Math.abs(metric.change).toFixed(2)}%
-                      </span>
-                    )}
-                  </CardDescription>
+                  {metric.change !== null && (
+                    <CardDescription>
+                      {metric.change > 0 ? (
+                        <span className="text-emerald-500 flex items-center">
+                          <ArrowUp className="w-4 h-4 mr-1" />
+                          {metric.change.toFixed(2)}%
+                        </span>
+                      ) : (
+                        <span className="text-red-500 flex items-center">
+                          <ArrowDown className="w-4 h-4 mr-1" />
+                          {Math.abs(metric.change).toFixed(2)}%
+                        </span>
+                      )}
+                    </CardDescription>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{metric.value} ETH</div>
-                <Progress value={50 + metric.change} className="h-1 mt-2" />
+                <div className="text-2xl font-bold">
+                  {metric.title === "Active Users"
+                    ? metric.value.toLocaleString() // Display raw count for Active Users
+                    : `${metric.value} ETH`}
+                </div>
+                {metric.change !== null && (
+                  <Progress value={50 + metric.change} className="h-1 mt-2" />
+                )}
               </CardContent>
             </Card>
           </motion.div>
