@@ -48,7 +48,7 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -179,7 +179,7 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-2"
       >
-        <h1 className="text-4xl font-bold tracking-tight">Staking Dashboard</h1>
+        <h1 className="text-4xl font-bold tracking-tight">sUSDe Dashboard</h1>
         <p className="text-muted-foreground">
           Real-time overview of staking protocol metrics and user activity
         </p>

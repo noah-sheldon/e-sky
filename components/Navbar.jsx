@@ -29,24 +29,14 @@ export default function Navbar() {
         {/* Desktop Navigation Menu */}
         <NavigationMenu className="hidden md:flex justify-end flex-grow">
           <NavigationMenuList className="flex gap-8">
-            {/* Dashboard */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>
-                <Link
-                  href="/dashboard"
-                  className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg"
-                >
-                  Dashboard
-                </Link>
-              </NavigationMenuTrigger>
-            </NavigationMenuItem>
-
             {/* USDe Token Dropdown */}
             <NavigationMenuItem>
               <NavigationMenuTrigger>
-                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
-                  USDe Token
-                </span>
+                <Link href="/usde">
+                  <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
+                    USDe Token
+                  </span>
+                </Link>
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
                 <ul className="flex flex-col gap-3">
@@ -88,10 +78,13 @@ export default function Navbar() {
 
             {/* sUSDe Token Dropdown */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>
-                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
+              <NavigationMenuTrigger asChild>
+                <Link
+                  href="/stake"
+                  className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer"
+                >
                   sUSDe Token
-                </span>
+                </Link>
               </NavigationMenuTrigger>
               <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
                 <ul className="flex flex-col gap-3">
@@ -140,30 +133,23 @@ export default function Navbar() {
         <div className="md:hidden bg-blue-900 text-white p-4 shadow-lg">
           <NavigationMenu className="flex flex-col gap-4">
             <NavigationMenuList className="flex flex-col gap-6">
-              {/* Dashboard */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-medium hover:text-yellow-300 transition-all"
-                  >
-                    Dashboard
-                  </Link>
-                </NavigationMenuTrigger>
-              </NavigationMenuItem>
-
               {/* USDe Token */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger>
-                  <span className="text-lg font-medium">USDe Token</span>
+                <NavigationMenuTrigger asChild>
+                  <Link
+                    href="/usde"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
+                  >
+                    USDe Token
+                  </Link>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="mt-2">
                   <ul className="flex flex-col gap-3 pl-4">
                     <li>
                       <Link
                         href="/usde/transfers"
-                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Transfers
@@ -172,7 +158,7 @@ export default function Navbar() {
                     <li>
                       <Link
                         href="/usde/approvals"
-                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Approvals
@@ -181,7 +167,7 @@ export default function Navbar() {
                     <li>
                       <Link
                         href="/usde/ownership-transfers"
-                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Ownership Transfers
@@ -190,7 +176,7 @@ export default function Navbar() {
                     <li>
                       <Link
                         href="/usde/minter-updated"
-                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Minter Updates
@@ -202,15 +188,21 @@ export default function Navbar() {
 
               {/* sUSDe Token */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger>
-                  <span className="text-lg font-medium">sUSDe Token</span>
+                <NavigationMenuTrigger asChild>
+                  <Link
+                    href="/stake"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
+                  >
+                    sUSDe Token
+                  </Link>
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="mt-2">
                   <ul className="flex flex-col gap-3 pl-4">
                     <li>
                       <Link
                         href="/stake/deposits"
-                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Deposits
@@ -219,7 +211,7 @@ export default function Navbar() {
                     <li>
                       <Link
                         href="/stake/withdraws"
-                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Withdrawals
@@ -228,7 +220,7 @@ export default function Navbar() {
                     <li>
                       <Link
                         href="/stake/rewards-received"
-                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Rewards Received
