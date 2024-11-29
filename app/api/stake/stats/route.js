@@ -53,6 +53,11 @@ const STAKE_STATS_QUERY = gql`
   }
 `;
 
+// Utility function to convert Wei to ETH
+const convertWeiToEth = (value) => {
+  return (BigInt(value) / BigInt(1e18)).toString(); // Convert Wei to ETH as string
+};
+
 // Utility function to calculate aggregate metrics
 const calculateAggregate = (items, key) => {
   return items.reduce((sum, item) => sum + BigInt(item[key] || 0), BigInt(0));
@@ -68,40 +73,35 @@ const calculateTopStakers = (deposits) => {
   return Object.entries(stakers)
     .sort(([, a], [, b]) => (b > a ? 1 : -1)) // Compare BigInt directly
     .slice(0, 10)
-    .map(([owner, assets]) => ({ owner, assets: assets.toString() }));
+    .map(([owner, assets]) => ({ owner, assets: convertWeiToEth(assets) })); // Convert assets to ETH
 };
 
 // Utility function to calculate approvals metrics
 const calculateApprovalMetrics = (approvals) => {
+  // Calculate total approved value
   const totalApprovedValue = approvals.reduce(
     (sum, approval) => sum + BigInt(approval.value || 0),
     BigInt(0)
   );
 
-  const approvers = approvals.reduce((acc, approval) => {
-    acc[approval.owner] =
-      (acc[approval.owner] || BigInt(0)) + BigInt(approval.value || 0);
-    return acc;
-  }, {});
-  const topApprovers = Object.entries(approvers)
-    .sort(([, a], [, b]) => (b > a ? 1 : -1))
-    .slice(0, 10)
-    .map(([owner, value]) => ({ owner, value: value.toString() }));
-
+  // Calculate the most approved spenders
   const spenders = approvals.reduce((acc, approval) => {
     acc[approval.spender] =
       (acc[approval.spender] || BigInt(0)) + BigInt(approval.value || 0);
     return acc;
   }, {});
+
   const mostApprovedSpenders = Object.entries(spenders)
-    .sort(([, a], [, b]) => (b > a ? 1 : -1))
-    .slice(0, 10)
-    .map(([spender, value]) => ({ spender, value: value.toString() }));
+    .sort(([, a], [, b]) => (a > b ? -1 : 1)) // Sort BigInt values
+    .slice(0, 10) // Take top 10 spenders
+    .map(([spender, value]) => ({
+      spender,
+      value: convertWeiToEth(value), // Convert value to ETH
+    }));
 
   return {
-    totalApprovedValue: totalApprovedValue.toString(),
-    topApprovers,
-    mostApprovedSpenders,
+    totalApprovedValue: convertWeiToEth(totalApprovedValue), // Total approved value in ETH
+    mostApprovedSpenders, // Top 10 spenders
   };
 };
 
@@ -123,7 +123,7 @@ const calculateTransferMetrics = (transfers) => {
     .map(([address, count]) => ({ address, count }));
 
   return {
-    totalTransferredValue: totalTransferredValue.toString(),
+    totalTransferredValue: convertWeiToEth(totalTransferredValue),
     topTransferAddresses,
   };
 };
@@ -142,11 +142,20 @@ export async function GET() {
       );
     }
 
-    // Protocol Metrics
-    const totalDeposits = calculateAggregate(data.deposits, "assets");
-    const totalWithdrawals = calculateAggregate(data.withdraws, "assets");
-    const totalRewards = calculateAggregate(data.rewardsReceiveds, "amount");
-    const netStaked = totalDeposits - totalWithdrawals;
+    // Protocol Metrics (convert to ETH)
+    const totalDeposits = convertWeiToEth(
+      calculateAggregate(data.deposits, "assets")
+    );
+    const totalWithdrawals = convertWeiToEth(
+      calculateAggregate(data.withdraws, "assets")
+    );
+    const totalRewards = convertWeiToEth(
+      calculateAggregate(data.rewardsReceiveds, "amount")
+    );
+    const netStaked = convertWeiToEth(
+      BigInt(calculateAggregate(data.deposits, "assets")) -
+        BigInt(calculateAggregate(data.withdraws, "assets"))
+    );
 
     // Unique Active Users
     const uniqueUsers = new Set([
@@ -167,14 +176,14 @@ export async function GET() {
     return new Response(
       JSON.stringify({
         protocolMetrics: {
-          totalDeposits: totalDeposits.toString(),
-          totalWithdrawals: totalWithdrawals.toString(),
-          netStaked: netStaked.toString(),
-          totalRewards: totalRewards.toString(),
+          totalDeposits,
+          totalWithdrawals,
+          netStaked,
+          totalRewards,
         },
         uniqueActiveUsers: uniqueUsers.size,
         topStakers,
-        approvalsMetrics,
+        approvalsMetrics, // includes totalApprovedValue and mostApprovedSpenders
         transfersMetrics,
       }),
       { status: 200 }
