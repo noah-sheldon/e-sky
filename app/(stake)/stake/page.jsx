@@ -1,50 +1,68 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  ArrowDown,
+  ArrowUp,
+  Copy,
+  Database,
+  LineChart,
+  Loader2,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
 } from "@/components/ui/card";
 import {
   Table,
-  TableHead,
-  TableRow,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Skeleton } from "@/components/ui/skeleton";
-import { FiTrendingUp, FiUser, FiDatabase } from "react-icons/fi";
-import { Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 
-// Utility function to format large numbers
+// Utility function to format large numbers as ETH with commas
 const formatToEth = (value) =>
-  (value / 1e18).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value / 1e18);
+
+// Utility function to calculate percentage change
+const getPercentageChange = (current, previous) => {
+  if (!previous) return 0;
+  return ((current - previous) / previous) * 100;
+};
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch("/api/stake/stats");
         const result = await response.json();
-        if (response.ok) {
-          setData(result);
-        } else {
-          setError(result.error || "Failed to fetch data");
-        }
+        if (!response.ok)
+          throw new Error(result.error || "Failed to fetch data");
+        setData(result);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -53,178 +71,227 @@ const Dashboard = () => {
     };
 
     fetchData();
+    const interval = setInterval(fetchData, 30000); // Refresh data every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 p-6">
-        <SkeletonDashboard />
+      <div className="p-6 space-y-8 max-w-[1400px] mx-auto">
+        {/* Header Skeleton */}
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-1/3 mx-auto md:mx-0" />
+          <Skeleton className="h-6 w-2/3 mx-auto md:mx-0" />
+        </div>
+
+        {/* Metrics Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-32 w-full rounded-lg" />
+          ))}
+        </div>
+
+        {/* Top Stakers Table Skeleton */}
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-8 w-full rounded-lg" />
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-10 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        {/* Transfers Table Skeleton */}
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-8 w-full rounded-lg" />
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-10 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500 mt-10">
-        <p>Error: {error}</p>
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="text-destructive">
+              Error Loading Data
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">{error}</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
+  const metrics = [
+    {
+      title: "Total Deposits",
+      value: data.protocolMetrics.totalDeposits,
+      icon: Database,
+      change: getPercentageChange(
+        data.protocolMetrics.totalDeposits,
+        data.protocolMetrics.previousTotalDeposits
+      ),
+    },
+    {
+      title: "Total Withdrawals",
+      value: data.protocolMetrics.totalWithdrawals,
+      icon: TrendingUp,
+      change: getPercentageChange(
+        data.protocolMetrics.totalWithdrawals,
+        data.protocolMetrics.previousTotalWithdrawals
+      ),
+    },
+    {
+      title: "Net Staked",
+      value: data.protocolMetrics.netStaked,
+      icon: LineChart,
+      change: getPercentageChange(
+        data.protocolMetrics.netStaked,
+        data.protocolMetrics.previousNetStaked
+      ),
+    },
+    {
+      title: "Total Rewards",
+      value: data.protocolMetrics.totalRewards,
+      icon: Users,
+      change: getPercentageChange(
+        data.protocolMetrics.totalRewards,
+        data.protocolMetrics.previousTotalRewards
+      ),
+    },
+  ];
+
   return (
-    <div className="p-6">
-      <header className="mb-6">
-        <h1 className="text-4xl font-bold text-blue-400">Staking Dashboard</h1>
-        <p className="text-gray-300">
-          Overview of staking protocol metrics and user activity
+    <div className="p-6 space-y-8 max-w-[1400px] mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-2"
+      >
+        <h1 className="text-4xl font-bold tracking-tight">Staking Dashboard</h1>
+        <p className="text-muted-foreground">
+          Real-time overview of staking protocol metrics and user activity
         </p>
-      </header>
+      </motion.div>
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard
-          title="Total Deposits"
-          value={data.protocolMetrics.totalDeposits}
-          icon={<FiDatabase />}
-        />
-        <MetricCard
-          title="Total Withdrawals"
-          value={data.protocolMetrics.totalWithdrawals}
-          icon={<FiTrendingUp />}
-        />
-        <MetricCard
-          title="Net Staked"
-          value={data.protocolMetrics.netStaked}
-          icon={<FiDatabase />}
-        />
-        <MetricCard
-          title="Total Rewards"
-          value={data.protocolMetrics.totalRewards}
-          icon={<FiUser />}
-        />
+        {metrics.map((metric, index) => (
+          <motion.div
+            key={metric.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className="relative overflow-hidden">
+              <CardHeader className="space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {metric.title}
+                </CardTitle>
+                <div className="flex items-center space-x-2">
+                  <metric.icon className="w-4 h-4 text-muted-foreground" />
+                  <CardDescription>
+                    {metric.change > 0 ? (
+                      <span className="text-emerald-500 flex items-center">
+                        <ArrowUp className="w-4 h-4 mr-1" />
+                        {metric.change.toFixed(2)}%
+                      </span>
+                    ) : (
+                      <span className="text-red-500 flex items-center">
+                        <ArrowDown className="w-4 h-4 mr-1" />
+                        {Math.abs(metric.change).toFixed(2)}%
+                      </span>
+                    )}
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metric.value} ETH</div>
+                <Progress value={50 + metric.change} className="h-1 mt-2" />
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
       {/* Top Stakers Table */}
-      <section className="mt-8">
-        <Card className="shadow-lg bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-blue-400">Top Stakers</CardTitle>
-            <CardDescription className="text-gray-400">
-              Displaying the top stakers and their assets.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table className="mt-4 font-mono text-sm">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Owner</TableHead>
-                  <TableHead>Assets (ETH)</TableHead>
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Stakers</CardTitle>
+          <CardDescription>
+            Highest value stakers in the protocol
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Owner</TableHead>
+                <TableHead className="text-right">Assets (ETH)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.topStakers.map((staker, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <AddressWithCopyTooltip address={staker.owner} />
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {staker.assets}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.topStakers.map((staker, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <AddressWithCopyTooltip address={staker.owner} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {staker.assets}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Top Approvals Table */}
-      {/* <section className="mt-8">
-        <Card className="shadow-lg bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-blue-400">Top Approvals</CardTitle>
-            <CardDescription className="text-gray-400">
-              Displaying the top token approvals and values.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table className="mt-4 font-mono text-sm">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Spender</TableHead>
-                  <TableHead>Value (ETH)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.approvalsMetrics.mostApprovedSpenders.map(
-                  (spender, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <AddressWithCopyTooltip address={spender.spender} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatToEth(spender.value)}
-                      </TableCell>
-                    </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </section> */}
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Transfers Table */}
-      <section className="mt-8">
-        <Card className="shadow-lg bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-blue-400">Top Transfers</CardTitle>
-            <CardDescription className="text-gray-400">
-              Displaying the top token transfer addresses and counts.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table className="mt-4 font-mono text-sm">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Address</TableHead>
-                  <TableHead>Transfer Count</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.transfersMetrics.topTransferAddresses.map(
-                  (transfer, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <AddressWithCopyTooltip address={transfer.address} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {transfer.count}
-                      </TableCell>
-                    </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Transfers</CardTitle>
+          <CardDescription>Latest token transfer activity</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Address</TableHead>
+                <TableHead className="text-right">Count</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.transfersMetrics.topTransferAddresses.map(
+                (transfer, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <AddressWithCopyTooltip address={transfer.address} />
+                    </TableCell>
+                    <TableCell className="text-right font-mono">
+                      {transfer.count}
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-// Metric Card Component
-const MetricCard = ({ title, value, icon }) => (
-  <Card className="flex items-center p-6 shadow-lg bg-gray-800">
-    <div className="text-2xl text-blue-400">{icon}</div>
-    <div className="ml-4">
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <p className="text-xl font-bold text-yellow-400">{value} ETH</p>
-    </div>
-  </Card>
-);
-
-// Address With Copy Tooltip Component
 const AddressWithCopyTooltip = ({ address }) => {
   const { toast } = useToast();
 
@@ -232,42 +299,27 @@ const AddressWithCopyTooltip = ({ address }) => {
 
   return (
     <div className="flex items-center">
-      {/* Copy Icon */}
-      <button
-        onClick={() => {
-          navigator.clipboard.writeText(address);
-          toast({
-            title: "Copied!",
-            description: `Address ${address} copied to clipboard.`,
-            duration: 3000,
-          });
-        }}
-        className="mr-2 text-blue-400 hover:text-blue-600"
-      >
-        <Copy size={16} />
-      </button>
-      {/* Tooltip for Address */}
       <Tooltip>
-        <TooltipTrigger>{`${address.slice(0, 6)}...${address.slice(
-          -4
-        )}`}</TooltipTrigger>
+        <TooltipTrigger asChild>
+          <span
+            onClick={() => {
+              navigator.clipboard.writeText(address);
+              toast({
+                description: `Address ${address} copied to clipboard.`,
+              });
+            }}
+            className="flex items-center hover:text-primary cursor-pointer"
+          >
+            {address.slice(0, 6)}...{address.slice(-4)}
+            <Copy className="w-4 h-4 ml-1" />
+          </span>
+        </TooltipTrigger>
         <TooltipContent>
-          <span>{address}</span>
+          <p className="font-mono text-xs">{address}</p>
         </TooltipContent>
       </Tooltip>
     </div>
   );
 };
-
-// Skeleton Loader
-const SkeletonDashboard = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    {Array.from({ length: 4 }).map((_, i) => (
-      <Skeleton key={i} className="h-32 w-full rounded-md" />
-    ))}
-    <Skeleton className="h-48 w-full col-span-2 rounded-md" />
-    <Skeleton className="h-48 w-full col-span-2 rounded-md" />
-  </div>
-);
 
 export default Dashboard;
