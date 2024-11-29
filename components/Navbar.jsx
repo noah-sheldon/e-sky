@@ -129,10 +129,10 @@ export default function Navbar() {
                   </li>
                   <li>
                     <Link
-                      href="/stake/withdraws"
+                      href="/mint/beneficiary-added"
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
-                      Withdrawals
+                      Beneficiary Added
                     </Link>
                   </li>
                   <li>
@@ -281,11 +281,11 @@ export default function Navbar() {
                     </li>
                     <li>
                       <Link
-                        href="/stake/withdraws"
+                        href="/mint/beneficiary-added"
                         className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        Withdrawals
+                        Beneficiary Added
                       </Link>
                     </li>
                     <li>
