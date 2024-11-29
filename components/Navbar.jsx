@@ -116,10 +116,10 @@ export default function Navbar() {
                   </li>
                   <li>
                     <Link
-                      href="/ownership-transfers"
+                      href="/stake/rewards-received"
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
-                      Ownership Transfers
+                      Rewards Received
                     </Link>
                   </li>
                   <li>
@@ -235,6 +235,15 @@ export default function Navbar() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Withdrawals
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/stake/rewards-received"
+                        className="text-base font-medium hover:text-yellow-300 transition-all"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Rewards Received
                       </Link>
                     </li>
                   </ul>
