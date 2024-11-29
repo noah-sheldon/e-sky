@@ -1,5 +1,4 @@
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
-import { NextResponse } from "next/server";
 
 // Initialize Apollo Client
 const client = new ApolloClient({
@@ -7,48 +6,105 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-// GraphQL Query with Correct Filter Syntax
-const GET_STATS_LAST_MONTH_QUERY = gql`
-  query GetOverviewDataLastMonth($timestamp_gt: BigInt!) {
-    approvals(where: { timestamp__gt: $timestamp_gt }) {
+// GraphQL Queries to Fetch Data
+const APPROVALS_QUERY = gql`
+  query GetLatestApprovals(
+    $first: Int
+    $orderBy: Approval_orderBy
+    $orderDirection: OrderDirection
+  ) {
+    approvals(
+      first: $first
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+    ) {
       id
-    }
-    transfers(where: { timestamp__gt: $timestamp_gt }) {
-      id
-    }
-    ownershipTransferreds(where: { timestamp__gt: $timestamp_gt }) {
-      id
-    }
-    minterUpdateds(where: { timestamp__gt: $timestamp_gt }) {
-      id
+      block_number
+      timestamp_
+      transactionHash_
+      contractId_
+      owner
+      spender
+      value
     }
   }
 `;
 
-export async function GET() {
-  // Calculate timestamp for the last 30 days
-  const thirtyDaysAgo = Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60;
+const TRANSFERS_QUERY = gql`
+  query GetTopTransfers(
+    $first: Int
+    $orderBy: Transfer_orderBy
+    $orderDirection: OrderDirection
+  ) {
+    transfers(
+      first: $first
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+    ) {
+      id
+      block_number
+      timestamp_
+      transactionHash_
+      contractId_
+      from
+      to
+      value
+    }
+  }
+`;
+
+export async function GET(request) {
+  const url = new URL(request.url);
+
+  const first = parseInt(url.searchParams.get("first") || 10);
+  const orderBy = url.searchParams.get("orderBy") || "timestamp_";
+  const orderDirection = url.searchParams.get("orderDirection") || "desc";
 
   try {
-    // Fetch data from the GraphQL API
-    const { data } = await client.query({
-      query: GET_STATS_LAST_MONTH_QUERY,
-      variables: { timestamp_gt: thirtyDaysAgo },
+    // Fetch latest 10 approvals (sorted by timestamp_)
+    const approvalData = await client.query({
+      query: APPROVALS_QUERY,
+      variables: {
+        first,
+        orderBy: orderBy, // Sorting approvals by timestamp
+        orderDirection: orderDirection, // Descending order for the latest approvals
+      },
     });
 
-    // Calculate counts from the response
-    const stats = {
-      approvals: data.approvals.length || 0,
-      transfers: data.transfers.length || 0,
-      ownershipTransfers: data.ownershipTransferreds.length || 0,
-      minterUpdateds: data.minterUpdateds.length || 0,
-    };
+    // Fetch top 10 transfers (sorted by value)
+    const transferData = await client.query({
+      query: TRANSFERS_QUERY,
+      variables: {
+        first,
+        orderBy: orderBy, // Sorting transfers by value (descending)
+        orderDirection: orderDirection, // Descending order for the highest value transfers
+      },
+    });
 
-    // Return the stats as JSON
-    return NextResponse.json({ success: true, data: stats });
+    // Convert Wei to Ether (1 ETH = 10^18 Wei)
+    const weiToEth = (wei) => (parseFloat(wei) / 1e18).toFixed(18);
+
+    // Convert value from Wei to Ether for approvals and transfers
+    const latestApprovals = approvalData.data.approvals.map((approval) => ({
+      ...approval,
+      value: weiToEth(approval.value), // Convert Wei to Ether
+    }));
+
+    const topTransfers = transferData.data.transfers.map((transfer) => ({
+      ...transfer,
+      value: weiToEth(transfer.value), // Convert Wei to Ether
+    }));
+
+    return new Response(
+      JSON.stringify({
+        latestApprovals, // Last 10 approvals sorted by timestamp
+        topTransfers, // Top 10 transfers sorted by timestamp
+      }),
+      { status: 200 }
+    );
   } catch (error) {
-    // Log and return errors
-    console.error("GraphQL Error:", error.message);
-    return NextResponse.json({ success: false, error: error.message });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+    });
   }
 }

@@ -48,6 +48,7 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [tokenData, setTokenData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +67,24 @@ const Dashboard = () => {
 
     fetchData();
     const interval = setInterval(fetchData, 30000); // Refresh data every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchTokenData = async () => {
+      try {
+        const response = await fetch("/api/token/stats");
+        const result = await response.json();
+        if (!response.ok)
+          throw new Error(result.error || "Failed to fetch token data");
+        setTokenData(result);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchTokenData();
+    const interval = setInterval(fetchTokenData, 30000); // Refresh data every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -255,8 +274,114 @@ const Dashboard = () => {
                   <TableCell>
                     <AddressWithCopyTooltip address={staker.owner} />
                   </TableCell>
-                  <TableCell className="text-right font-mono">
+                  <TableCell className="text-right">
                     {formatToEth(staker.assets)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Latest Approvals Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Latest Approvals</CardTitle>
+          <CardDescription>Latest approval transactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Owner</TableHead>
+                <TableHead>Value (ETH)</TableHead>
+                <TableHead>Spender</TableHead>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Transaction Hash</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tokenData.latestApprovals.map((approval, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <AddressWithCopyTooltip address={approval.owner} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatToEth(approval.value)}
+                  </TableCell>
+                  <TableCell>
+                    <AddressWithCopyTooltip address={approval.spender} />
+                  </TableCell>
+                  <TableCell>
+                    {/* Display timestamp in a readable format */}
+                    {new Date(approval.timestamp_ * 1000).toLocaleString()}{" "}
+                    {/* Assuming timestamp_ is in Unix time */}
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href={`https://etherscan.io/tx/${approval.transactionHash_}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      {approval.transactionHash_.slice(0, 8)}...
+                      {approval.transactionHash_.slice(-6)}
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Top Transfers Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Transfers</CardTitle>
+          <CardDescription>
+            Biggest transfer values in the protocol
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Owner</TableHead>
+                <TableHead>Transfer Value</TableHead>
+                <TableHead>Recipient</TableHead>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Transaction Hash</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tokenData.topTransfers.map((transfer, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <AddressWithCopyTooltip address={transfer.from} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatToEth(transfer.value)}
+                  </TableCell>
+                  <TableCell>
+                    <AddressWithCopyTooltip address={transfer.to} />
+                  </TableCell>
+                  <TableCell>
+                    {/* Display timestamp in a readable format */}
+                    {new Date(transfer.timestamp_ * 1000).toLocaleString()}{" "}
+                    {/* Assuming timestamp_ is in Unix time */}
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href={`https://etherscan.io/tx/${transfer.transactionHash_}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      {transfer.transactionHash_.slice(0, 8)}...
+                      {transfer.transactionHash_.slice(-6)}
+                    </a>
                   </TableCell>
                 </TableRow>
               ))}
@@ -276,7 +401,7 @@ const Dashboard = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Address</TableHead>
-                <TableHead className="text-right">Count</TableHead>
+                <TableHead>Count</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -286,9 +411,7 @@ const Dashboard = () => {
                     <TableCell>
                       <AddressWithCopyTooltip address={transfer.address} />
                     </TableCell>
-                    <TableCell className="text-right font-mono">
-                      {transfer.count}
-                    </TableCell>
+                    <TableCell>{transfer.count}</TableCell>
                   </TableRow>
                 )
               )}
@@ -323,7 +446,7 @@ const AddressWithCopyTooltip = ({ address }) => {
           </span>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="font-mono text-xs">{address}</p>
+          <p className="text-xs">{address}</p>
         </TooltipContent>
       </Tooltip>
     </div>
