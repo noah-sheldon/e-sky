@@ -37,7 +37,7 @@ export default function Home() {
   const formatStat = (value) => (value >= 100 ? "100+" : value);
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-gray-900 text-white ">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-800 via-blue-600 to-blue-500 text-center py-16 px-6">
         <h1 className="text-4xl md:text-6xl font-extrabold mb-4">

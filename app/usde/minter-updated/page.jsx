@@ -1,10 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  CopyIcon,
-  RefreshCwIcon as ReloadIcon,
-} from "lucide-react";
+import { CopyIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -33,29 +30,26 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import {
   Tooltip,
-  TooltipContent,
   TooltipTrigger,
+  TooltipContent,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { convertWeiToEth } from "@/lib/utils";
 
-export default function TransfersPage() {
-  const [transfers, setTransfers] = React.useState([]);
+export default function MinterUpdatedPage() {
+  const [events, setEvents] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
 
   // Filters and Sorting
   const [filters, setFilters] = React.useState({
-    from: "",
-    to: "",
+    newMinter: "",
+    oldMinter: "",
     first: "10",
     orderBy: "timestamp_",
     orderDirection: "desc",
   });
 
-  const { toast } = useToast();
-
-  const fetchTransfers = React.useCallback(async () => {
+  const fetchMinterUpdates = React.useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -63,17 +57,19 @@ export default function TransfersPage() {
       first: filters.first,
       orderBy: filters.orderBy,
       orderDirection: filters.orderDirection,
-      ...(filters.from && { from: filters.from }),
-      ...(filters.to && { to: filters.to }),
+      ...(filters.newMinter && { newMinter: filters.newMinter }),
+      ...(filters.oldMinter && { oldMinter: filters.oldMinter }),
     });
 
     try {
-      const response = await fetch(`/api/token/transfers?${params.toString()}`);
+      const response = await fetch(
+        `/api/token/minter-updated?${params.toString()}`
+      );
       const data = await response.json();
       if (response.ok) {
-        setTransfers(data);
+        setEvents(data);
       } else {
-        setError(data.error || "Failed to fetch transfers");
+        setError(data.error || "Failed to fetch MinterUpdated events");
       }
     } catch (err) {
       setError(err.message);
@@ -83,51 +79,51 @@ export default function TransfersPage() {
   }, [filters]);
 
   React.useEffect(() => {
-    fetchTransfers();
-  }, [fetchTransfers]);
+    fetchMinterUpdates();
+  }, [fetchMinterUpdates]);
 
   const handleFilterReset = () => {
     setFilters({
-      from: "",
-      to: "",
+      newMinter: "",
+      oldMinter: "",
       first: "10",
       orderBy: "timestamp_",
       orderDirection: "desc",
     });
   };
 
-  const formatValue = (value) =>
-    parseInt(value).toLocaleString("en-US", { style: "decimal" });
-
   const formatAddress = (address) =>
     `${address.slice(0, 6)}...${address.slice(-4)}`;
+
+  const { toast } = useToast();
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copied!",
-      description: `Address ${text} copied to clipboard.`,
+      title: "Copied to Clipboard",
+      description: text,
+      variant: "default",
       duration: 3000,
     });
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-800">
+    <div className=" bg-gray-50 text-gray-800">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
-        {/* Header Card */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-blue-600">
-                Transfers Explorer
+                Minter Updates
               </CardTitle>
               <CardDescription>
-                Explore token transfers on the USDe blockchain. Use filters to
-                refine your search and view transaction details.
+                Explore changes to minters on the blockchain. Use filters to
+                refine your search and view event details.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -139,35 +135,46 @@ export default function TransfersPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-xl font-semibold">Filters</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <Input
-                  id="from"
-                  placeholder="From Address"
-                  value={filters.from}
+                  id="newMinter"
+                  placeholder="New Minter Address"
+                  value={filters.newMinter}
                   onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, from: e.target.value }))
+                    setFilters((prev) => ({
+                      ...prev,
+                      newMinter: e.target.value,
+                    }))
                   }
+                  className="border-gray-300"
                 />
                 <Input
-                  id="to"
-                  placeholder="To Address"
-                  value={filters.to}
+                  id="oldMinter"
+                  placeholder="Old Minter Address"
+                  value={filters.oldMinter}
                   onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, to: e.target.value }))
+                    setFilters((prev) => ({
+                      ...prev,
+                      oldMinter: e.target.value,
+                    }))
                   }
+                  className="border-gray-300"
                 />
                 <Select
                   value={filters.orderDirection}
                   onValueChange={(value) =>
-                    setFilters((prev) => ({ ...prev, orderDirection: value }))
+                    setFilters((prev) => ({
+                      ...prev,
+                      orderDirection: value,
+                    }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -178,10 +185,13 @@ export default function TransfersPage() {
                 <Select
                   value={filters.first}
                   onValueChange={(value) =>
-                    setFilters((prev) => ({ ...prev, first: value }))
+                    setFilters((prev) => ({
+                      ...prev,
+                      first: value,
+                    }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -193,23 +203,19 @@ export default function TransfersPage() {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="mt-6 flex flex-wrap gap-4">
                 <Button
-                  onClick={fetchTransfers}
-                  className="bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={fetchMinterUpdates}
+                  className="bg-blue-500 text-white hover:bg-blue-600"
                   disabled={loading}
                 >
-                  {loading ? (
-                    <>
-                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    "Apply Filters"
-                  )}
+                  {loading ? "Loading..." : "Apply Filters"}
                 </Button>
-                <Button onClick={handleFilterReset} variant="outline">
+                <Button
+                  onClick={handleFilterReset}
+                  variant="outline"
+                  className="border-gray-300 hover:bg-gray-100"
+                >
                   Reset Filters
                 </Button>
               </div>
@@ -217,16 +223,16 @@ export default function TransfersPage() {
           </Card>
         </motion.div>
 
-        {/* Transfer Table */}
+        {/* Events Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-xl font-semibold">
-                Transfer History
+                Minter Updates
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -237,37 +243,36 @@ export default function TransfersPage() {
                   <Skeleton className="h-12 w-full" />
                 </div>
               ) : error ? (
-                <div className="rounded-lg bg-red-500/10 p-4 text-red-400">
-                  <p>Error: {error}</p>
-                </div>
-              ) : transfers.length > 0 ? (
+                <div className="text-red-500">{error}</div>
+              ) : events.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>From</TableHead>
-                      <TableHead>To</TableHead>
-                      <TableHead>Value</TableHead>
+                      <TableHead>Old Minter</TableHead>
+                      <TableHead>New Minter</TableHead>
                       <TableHead>Block</TableHead>
                       <TableHead>Timestamp</TableHead>
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {transfers.map((transfer) => (
-                      <TableRow key={transfer.id}>
+                    {events.map((event) => (
+                      <TableRow key={event.id}>
                         <TableCell>
                           <Tooltip>
                             <TooltipTrigger>
                               <div className="flex items-center">
-                                {formatAddress(transfer.from)}
+                                {formatAddress(event.oldMinter)}
                                 <CopyIcon
                                   className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
-                                  onClick={() => copyToClipboard(transfer.from)}
+                                  onClick={() =>
+                                    copyToClipboard(event.oldMinter)
+                                  }
                                 />
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{transfer.from}</p>
+                              <p>{event.oldMinter}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
@@ -275,30 +280,29 @@ export default function TransfersPage() {
                           <Tooltip>
                             <TooltipTrigger>
                               <div className="flex items-center">
-                                {formatAddress(transfer.to)}
+                                {formatAddress(event.newMinter)}
                                 <CopyIcon
                                   className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
-                                  onClick={() => copyToClipboard(transfer.to)}
+                                  onClick={() =>
+                                    copyToClipboard(event.newMinter)
+                                  }
                                 />
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{transfer.to}</p>
+                              <p>{event.newMinter}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
-                        <TableCell>
-                          {formatValue(convertWeiToEth(transfer.value))}
-                        </TableCell>
-                        <TableCell>{transfer.block_number}</TableCell>
+                        <TableCell>{event.block_number}</TableCell>
                         <TableCell>
                           {new Date(
-                            parseInt(transfer.timestamp_) * 1000
+                            parseInt(event.timestamp_) * 1000
                           ).toLocaleString()}
                         </TableCell>
                         <TableCell>
                           <a
-                            href={`https://etherscan.io/tx/${transfer.transactionHash_}`}
+                            href={`https://etherscan.io/tx/${event.transactionHash_}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline"
@@ -312,7 +316,7 @@ export default function TransfersPage() {
                 </Table>
               ) : (
                 <div className="text-center text-gray-500">
-                  No transfers found.
+                  No MinterUpdated events found.
                 </div>
               )}
             </CardContent>

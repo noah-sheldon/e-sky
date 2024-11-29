@@ -1,12 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  CopyIcon,
-  ArrowDownIcon,
-  ArrowUpIcon,
-  RefreshCwIcon as ReloadIcon,
-} from "lucide-react";
+import { CopyIcon, RefreshCwIcon as ReloadIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -35,27 +30,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { convertWeiToEth } from "@/lib/utils";
 
-export default function OwnershipTransferredPage() {
-  const [events, setEvents] = React.useState([]);
+export default function TransfersPage() {
+  const [transfers, setTransfers] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
-  const { toast } = useToast();
 
   // Filters and Sorting
   const [filters, setFilters] = React.useState({
-    previousOwner: "",
-    newOwner: "",
+    from: "",
+    to: "",
     first: "10",
     orderBy: "timestamp_",
     orderDirection: "desc",
   });
 
-  const fetchOwnershipTransfers = React.useCallback(async () => {
+  const { toast } = useToast();
+
+  const fetchTransfers = React.useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -63,19 +60,17 @@ export default function OwnershipTransferredPage() {
       first: filters.first,
       orderBy: filters.orderBy,
       orderDirection: filters.orderDirection,
-      ...(filters.previousOwner && { previousOwner: filters.previousOwner }),
-      ...(filters.newOwner && { newOwner: filters.newOwner }),
+      ...(filters.from && { from: filters.from }),
+      ...(filters.to && { to: filters.to }),
     });
 
     try {
-      const response = await fetch(
-        `/api/token/ownership-transfers?${params.toString()}`
-      );
+      const response = await fetch(`/api/token/transfers?${params.toString()}`);
       const data = await response.json();
       if (response.ok) {
-        setEvents(data);
+        setTransfers(data);
       } else {
-        setError(data.error || "Failed to fetch OwnershipTransferred events");
+        setError(data.error || "Failed to fetch transfers");
       }
     } catch (err) {
       setError(err.message);
@@ -85,18 +80,21 @@ export default function OwnershipTransferredPage() {
   }, [filters]);
 
   React.useEffect(() => {
-    fetchOwnershipTransfers();
-  }, [fetchOwnershipTransfers]);
+    fetchTransfers();
+  }, [fetchTransfers]);
 
   const handleFilterReset = () => {
     setFilters({
-      previousOwner: "",
-      newOwner: "",
+      from: "",
+      to: "",
       first: "10",
       orderBy: "timestamp_",
       orderDirection: "desc",
     });
   };
+
+  const formatValue = (value) =>
+    parseInt(value).toLocaleString("en-US", { style: "decimal" });
 
   const formatAddress = (address) =>
     `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -104,30 +102,29 @@ export default function OwnershipTransferredPage() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copied to Clipboard",
-      description: text,
-      variant: "default",
+      title: "Copied!",
+      description: `Address ${text} copied to clipboard.`,
       duration: 3000,
     });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
+    <div className="bg-white text-gray-800">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
-        {/* Header */}
+        {/* Header Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="shadow-md">
+          <Card>
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-blue-600">
-                Ownership Transfers
+                Transfers Explorer
               </CardTitle>
               <CardDescription>
-                Explore ownership transfer events on the blockchain. Use filters
-                to refine your search and view event details.
+                Explore token transfers on the USDe blockchain. Use filters to
+                refine your search and view transaction details.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -139,73 +136,49 @@ export default function OwnershipTransferredPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="shadow-md">
+          <Card>
             <CardHeader>
               <CardTitle className="text-xl font-semibold">Filters</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <Input
-                  id="previousOwner"
-                  placeholder="Previous Owner Address"
-                  value={filters.previousOwner}
+                  id="from"
+                  placeholder="From Address"
+                  value={filters.from}
                   onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      previousOwner: e.target.value,
-                    }))
+                    setFilters((prev) => ({ ...prev, from: e.target.value }))
                   }
-                  className="border-gray-300"
                 />
                 <Input
-                  id="newOwner"
-                  placeholder="New Owner Address"
-                  value={filters.newOwner}
+                  id="to"
+                  placeholder="To Address"
+                  value={filters.to}
                   onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      newOwner: e.target.value,
-                    }))
+                    setFilters((prev) => ({ ...prev, to: e.target.value }))
                   }
-                  className="border-gray-300"
                 />
                 <Select
                   value={filters.orderDirection}
                   onValueChange={(value) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      orderDirection: value,
-                    }))
+                    setFilters((prev) => ({ ...prev, orderDirection: value }))
                   }
                 >
-                  <SelectTrigger className="border-gray-300">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="desc">
-                      <span className="flex items-center gap-2">
-                        <ArrowDownIcon className="h-4 w-4" />
-                        Descending
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="asc">
-                      <span className="flex items-center gap-2">
-                        <ArrowUpIcon className="h-4 w-4" />
-                        Ascending
-                      </span>
-                    </SelectItem>
+                    <SelectItem value="desc">Descending</SelectItem>
+                    <SelectItem value="asc">Ascending</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select
                   value={filters.first}
                   onValueChange={(value) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      first: value,
-                    }))
+                    setFilters((prev) => ({ ...prev, first: value }))
                   }
                 >
-                  <SelectTrigger className="border-gray-300">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,8 +193,8 @@ export default function OwnershipTransferredPage() {
 
               <div className="mt-6 flex flex-wrap gap-4">
                 <Button
-                  onClick={fetchOwnershipTransfers}
-                  className="bg-blue-500 text-white hover:bg-blue-600"
+                  onClick={fetchTransfers}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
                   disabled={loading}
                 >
                   {loading ? (
@@ -233,11 +206,7 @@ export default function OwnershipTransferredPage() {
                     "Apply Filters"
                   )}
                 </Button>
-                <Button
-                  onClick={handleFilterReset}
-                  variant="outline"
-                  className="border-gray-300 hover:bg-gray-100"
-                >
+                <Button onClick={handleFilterReset} variant="outline">
                   Reset Filters
                 </Button>
               </div>
@@ -245,16 +214,16 @@ export default function OwnershipTransferredPage() {
           </Card>
         </motion.div>
 
-        {/* Table */}
+        {/* Transfer Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="shadow-md">
+          <Card>
             <CardHeader>
               <CardTitle className="text-xl font-semibold">
-                Ownership Transfer History
+                Transfer History
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -265,36 +234,37 @@ export default function OwnershipTransferredPage() {
                   <Skeleton className="h-12 w-full" />
                 </div>
               ) : error ? (
-                <div className="text-red-500">{error}</div>
-              ) : events.length > 0 ? (
+                <div className="rounded-lg bg-red-500/10 p-4 text-red-400">
+                  <p>Error: {error}</p>
+                </div>
+              ) : transfers.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Previous Owner</TableHead>
-                      <TableHead>New Owner</TableHead>
+                      <TableHead>From</TableHead>
+                      <TableHead>To</TableHead>
+                      <TableHead>Value</TableHead>
                       <TableHead>Block</TableHead>
                       <TableHead>Timestamp</TableHead>
                       <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {events.map((event) => (
-                      <TableRow key={event.id}>
+                    {transfers.map((transfer) => (
+                      <TableRow key={transfer.id}>
                         <TableCell>
                           <Tooltip>
                             <TooltipTrigger>
                               <div className="flex items-center">
-                                {formatAddress(event.previousOwner)}
+                                {formatAddress(transfer.from)}
                                 <CopyIcon
                                   className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
-                                  onClick={() =>
-                                    copyToClipboard(event.previousOwner)
-                                  }
+                                  onClick={() => copyToClipboard(transfer.from)}
                                 />
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{event.previousOwner}</p>
+                              <p>{transfer.from}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
@@ -302,29 +272,30 @@ export default function OwnershipTransferredPage() {
                           <Tooltip>
                             <TooltipTrigger>
                               <div className="flex items-center">
-                                {formatAddress(event.newOwner)}
+                                {formatAddress(transfer.to)}
                                 <CopyIcon
                                   className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
-                                  onClick={() =>
-                                    copyToClipboard(event.newOwner)
-                                  }
+                                  onClick={() => copyToClipboard(transfer.to)}
                                 />
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{event.newOwner}</p>
+                              <p>{transfer.to}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
-                        <TableCell>{event.block_number}</TableCell>
+                        <TableCell>
+                          {formatValue(convertWeiToEth(transfer.value))}
+                        </TableCell>
+                        <TableCell>{transfer.block_number}</TableCell>
                         <TableCell>
                           {new Date(
-                            parseInt(event.timestamp_) * 1000
+                            parseInt(transfer.timestamp_) * 1000
                           ).toLocaleString()}
                         </TableCell>
                         <TableCell>
                           <a
-                            href={`https://etherscan.io/tx/${event.transactionHash_}`}
+                            href={`https://etherscan.io/tx/${transfer.transactionHash_}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline"
@@ -338,7 +309,7 @@ export default function OwnershipTransferredPage() {
                 </Table>
               ) : (
                 <div className="text-center text-gray-500">
-                  No OwnershipTransferred events found.
+                  No transfers found.
                 </div>
               )}
             </CardContent>

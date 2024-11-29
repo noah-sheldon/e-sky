@@ -108,7 +108,7 @@ export default function ApprovalsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
+    <div className=" bg-gray-50 text-gray-800">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
         {/* Header Card */}
         <motion.div

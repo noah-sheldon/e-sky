@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/page.jsx", "app/(token)/approvals/page.jsx", "app/(token)/ownership-transfers/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/page.jsx", "app/usde/approvals/page.jsx", "app/usde/ownership-transfers/page.jsx"],
   "exclude": ["node_modules"]
 }

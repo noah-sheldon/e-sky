@@ -21,12 +21,12 @@ export default function RootLayout({
         <ToastProvider>
           <html lang="en">
             <body className="antialiased bg-gray-50 text-gray-800">
-              {/* Navbar */}
-              <header>
+              {/* Sticky Navbar */}
+              <header className="sticky top-0 z-50 bg-white shadow-md">
                 <Navbar />
               </header>
 
-              {/* Main content */}
+              {/* Main content with min height */}
               <main className="container mx-auto px-4 py-8">{children}</main>
 
               {/* Toaster */}

@@ -104,7 +104,7 @@ export default function DepositsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-gray-100 to-gray-50 text-gray-800">
+    <div className=" bg-gradient-to-b from-gray-50 via-gray-100 to-gray-50 text-gray-800">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
         {/* Page Header */}
         <motion.div

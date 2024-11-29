@@ -52,7 +52,7 @@ export default function Navbar() {
                 <ul className="flex flex-col gap-3">
                   <li>
                     <Link
-                      href="/transfers"
+                      href="/usde/transfers"
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
                       Transfers
@@ -60,7 +60,7 @@ export default function Navbar() {
                   </li>
                   <li>
                     <Link
-                      href="/approvals"
+                      href="/usde/approvals"
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
                       Approvals
@@ -68,7 +68,7 @@ export default function Navbar() {
                   </li>
                   <li>
                     <Link
-                      href="/ownership-transfers"
+                      href="/usde/ownership-transfers"
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
                       Ownership Transfers
@@ -76,7 +76,7 @@ export default function Navbar() {
                   </li>
                   <li>
                     <Link
-                      href="/minter-updated"
+                      href="/usde/minter-updated"
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
                       Minter Updates
@@ -162,7 +162,7 @@ export default function Navbar() {
                   <ul className="flex flex-col gap-3 pl-4">
                     <li>
                       <Link
-                        href="/transfers"
+                        href="/usde/transfers"
                         className="text-base font-medium hover:text-yellow-300 transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -171,7 +171,7 @@ export default function Navbar() {
                     </li>
                     <li>
                       <Link
-                        href="/approvals"
+                        href="/usde/approvals"
                         className="text-base font-medium hover:text-yellow-300 transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -180,7 +180,7 @@ export default function Navbar() {
                     </li>
                     <li>
                       <Link
-                        href="/ownership-transfers"
+                        href="/usde/ownership-transfers"
                         className="text-base font-medium hover:text-yellow-300 transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -189,7 +189,7 @@ export default function Navbar() {
                     </li>
                     <li>
                       <Link
-                        href="/minter-updated"
+                        href="/usde/minter-updated"
                         className="text-base font-medium hover:text-yellow-300 transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >

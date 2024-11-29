@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { CopyIcon } from "lucide-react";
+import {
+  CopyIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  RefreshCwIcon as ReloadIcon,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -35,21 +40,22 @@ import {
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 
-export default function MinterUpdatedPage() {
+export default function OwnershipTransferredPage() {
   const [events, setEvents] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  const { toast } = useToast();
 
   // Filters and Sorting
   const [filters, setFilters] = React.useState({
-    newMinter: "",
-    oldMinter: "",
+    previousOwner: "",
+    newOwner: "",
     first: "10",
     orderBy: "timestamp_",
     orderDirection: "desc",
   });
 
-  const fetchMinterUpdates = React.useCallback(async () => {
+  const fetchOwnershipTransfers = React.useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -57,19 +63,19 @@ export default function MinterUpdatedPage() {
       first: filters.first,
       orderBy: filters.orderBy,
       orderDirection: filters.orderDirection,
-      ...(filters.newMinter && { newMinter: filters.newMinter }),
-      ...(filters.oldMinter && { oldMinter: filters.oldMinter }),
+      ...(filters.previousOwner && { previousOwner: filters.previousOwner }),
+      ...(filters.newOwner && { newOwner: filters.newOwner }),
     });
 
     try {
       const response = await fetch(
-        `/api/token/minter-updated?${params.toString()}`
+        `/api/token/ownership-transfers?${params.toString()}`
       );
       const data = await response.json();
       if (response.ok) {
         setEvents(data);
       } else {
-        setError(data.error || "Failed to fetch MinterUpdated events");
+        setError(data.error || "Failed to fetch OwnershipTransferred events");
       }
     } catch (err) {
       setError(err.message);
@@ -79,13 +85,13 @@ export default function MinterUpdatedPage() {
   }, [filters]);
 
   React.useEffect(() => {
-    fetchMinterUpdates();
-  }, [fetchMinterUpdates]);
+    fetchOwnershipTransfers();
+  }, [fetchOwnershipTransfers]);
 
   const handleFilterReset = () => {
     setFilters({
-      newMinter: "",
-      oldMinter: "",
+      previousOwner: "",
+      newOwner: "",
       first: "10",
       orderBy: "timestamp_",
       orderDirection: "desc",
@@ -94,8 +100,6 @@ export default function MinterUpdatedPage() {
 
   const formatAddress = (address) =>
     `${address.slice(0, 6)}...${address.slice(-4)}`;
-
-  const { toast } = useToast();
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -108,7 +112,7 @@ export default function MinterUpdatedPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
+    <div className=" bg-gray-50 text-gray-800">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
         {/* Header */}
         <motion.div
@@ -119,11 +123,11 @@ export default function MinterUpdatedPage() {
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-blue-600">
-                Minter Updates
+                Ownership Transfers
               </CardTitle>
               <CardDescription>
-                Explore changes to minters on the blockchain. Use filters to
-                refine your search and view event details.
+                Explore ownership transfer events on the blockchain. Use filters
+                to refine your search and view event details.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -142,25 +146,25 @@ export default function MinterUpdatedPage() {
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <Input
-                  id="newMinter"
-                  placeholder="New Minter Address"
-                  value={filters.newMinter}
+                  id="previousOwner"
+                  placeholder="Previous Owner Address"
+                  value={filters.previousOwner}
                   onChange={(e) =>
                     setFilters((prev) => ({
                       ...prev,
-                      newMinter: e.target.value,
+                      previousOwner: e.target.value,
                     }))
                   }
                   className="border-gray-300"
                 />
                 <Input
-                  id="oldMinter"
-                  placeholder="Old Minter Address"
-                  value={filters.oldMinter}
+                  id="newOwner"
+                  placeholder="New Owner Address"
+                  value={filters.newOwner}
                   onChange={(e) =>
                     setFilters((prev) => ({
                       ...prev,
-                      oldMinter: e.target.value,
+                      newOwner: e.target.value,
                     }))
                   }
                   className="border-gray-300"
@@ -178,8 +182,18 @@ export default function MinterUpdatedPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="desc">Descending</SelectItem>
-                    <SelectItem value="asc">Ascending</SelectItem>
+                    <SelectItem value="desc">
+                      <span className="flex items-center gap-2">
+                        <ArrowDownIcon className="h-4 w-4" />
+                        Descending
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="asc">
+                      <span className="flex items-center gap-2">
+                        <ArrowUpIcon className="h-4 w-4" />
+                        Ascending
+                      </span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <Select
@@ -203,13 +217,21 @@ export default function MinterUpdatedPage() {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="mt-6 flex flex-wrap gap-4">
                 <Button
-                  onClick={fetchMinterUpdates}
+                  onClick={fetchOwnershipTransfers}
                   className="bg-blue-500 text-white hover:bg-blue-600"
                   disabled={loading}
                 >
-                  {loading ? "Loading..." : "Apply Filters"}
+                  {loading ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Apply Filters"
+                  )}
                 </Button>
                 <Button
                   onClick={handleFilterReset}
@@ -223,7 +245,7 @@ export default function MinterUpdatedPage() {
           </Card>
         </motion.div>
 
-        {/* Events Table */}
+        {/* Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -232,7 +254,7 @@ export default function MinterUpdatedPage() {
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-xl font-semibold">
-                Minter Updates
+                Ownership Transfer History
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -248,8 +270,8 @@ export default function MinterUpdatedPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Old Minter</TableHead>
-                      <TableHead>New Minter</TableHead>
+                      <TableHead>Previous Owner</TableHead>
+                      <TableHead>New Owner</TableHead>
                       <TableHead>Block</TableHead>
                       <TableHead>Timestamp</TableHead>
                       <TableHead>Action</TableHead>
@@ -262,17 +284,17 @@ export default function MinterUpdatedPage() {
                           <Tooltip>
                             <TooltipTrigger>
                               <div className="flex items-center">
-                                {formatAddress(event.oldMinter)}
+                                {formatAddress(event.previousOwner)}
                                 <CopyIcon
                                   className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
                                   onClick={() =>
-                                    copyToClipboard(event.oldMinter)
+                                    copyToClipboard(event.previousOwner)
                                   }
                                 />
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{event.oldMinter}</p>
+                              <p>{event.previousOwner}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
@@ -280,17 +302,17 @@ export default function MinterUpdatedPage() {
                           <Tooltip>
                             <TooltipTrigger>
                               <div className="flex items-center">
-                                {formatAddress(event.newMinter)}
+                                {formatAddress(event.newOwner)}
                                 <CopyIcon
                                   className="ml-2 h-4 w-4 cursor-pointer text-gray-500 hover:text-gray-700"
                                   onClick={() =>
-                                    copyToClipboard(event.newMinter)
+                                    copyToClipboard(event.newOwner)
                                   }
                                 />
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{event.newMinter}</p>
+                              <p>{event.newOwner}</p>
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
@@ -316,7 +338,7 @@ export default function MinterUpdatedPage() {
                 </Table>
               ) : (
                 <div className="text-center text-gray-500">
-                  No MinterUpdated events found.
+                  No OwnershipTransferred events found.
                 </div>
               )}
             </CardContent>
