@@ -38,6 +38,12 @@ import { Progress } from "@/components/ui/progress";
 // Utility function to format large numbers as ETH with commas
 const formatToEth = (value) => new Intl.NumberFormat("en-US").format(value);
 
+const formatCurrency = (value) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(value);
+
 // Utility function to calculate percentage change
 const getPercentageChange = (current, previous) => {
   if (!previous) return 0;
@@ -49,6 +55,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tokenData, setTokenData] = useState(null);
+  const [priceData, setPriceData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,7 +73,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 30000); // Refresh data every 30 seconds
+    const interval = setInterval(fetchData, 1800000); // Refresh data every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -88,7 +95,26 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading || !data || !tokenData) {
+  useEffect(() => {
+    const fetchPriceData = async () => {
+      try {
+        const response = await fetch("/api/price");
+        const result = await response.json();
+        if (!response.ok)
+          throw new Error(result.error || "Failed to fetch data");
+        setPriceData(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPriceData();
+    const interval = setInterval(fetchPriceData, 30000); // Refresh data every 30 seconds
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+
+  if (loading || !data || !tokenData || !priceData) {
     return (
       <div className="p-6 space-y-8 max-w-[1400px] mx-auto">
         {/* Header Skeleton */}
@@ -193,6 +219,97 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 space-y-8 max-w-[1400px] mx-auto">
+      {/* Header Section */}
+      {/* <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-4 text-center"
+      >
+        <h1 className="text-4xl font-bold tracking-tight">
+          Ethena USDe Dashboard
+        </h1>
+        <p className="text-muted-foreground">
+          Real-time metrics and analytics for Ethena USDe token.
+        </p>
+      </motion.div> */}
+
+      {/* USDe Metrics Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
+        <Card className="relative overflow-hidden">
+          <CardHeader className="space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Current Price</CardTitle>
+            <div className="text-2xl font-bold">
+              {formatCurrency(priceData.price)} USD
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Last Updated:{" "}
+              {new Date(priceData.last_updated).toLocaleTimeString()}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Market Cap</CardTitle>
+            <div className="text-2xl font-bold">
+              {formatCurrency(priceData.market_cap)}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Progress
+              value={priceData.percent_change_24h}
+              className="h-1 mt-2"
+            />
+            <p className="text-sm">
+              24h Change:{" "}
+              <span
+                className={
+                  priceData.percent_change_24h >= 0
+                    ? "text-emerald-500"
+                    : "text-red-500"
+                }
+              >
+                {priceData.percent_change_24h.toFixed(2)}%
+              </span>
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">24h Volume</CardTitle>
+            <div className="text-2xl font-bold">
+              {formatCurrency(priceData.volume_24h)}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Total Supply: {priceData.total_supply.toLocaleString()}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Circulating Supply:{" "}
+              {priceData.circulating_supply.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden">
+          <CardHeader className="space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Platform</CardTitle>
+            <div className="text-xl font-bold">{priceData.platform}</div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Token Address:</p>
+            <AddressWithCopyTooltip address={priceData.token_address} />
+          </CardContent>
+        </Card>
+      </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
