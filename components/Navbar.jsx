@@ -137,10 +137,10 @@ export default function Navbar() {
                   </li>
                   <li>
                     <Link
-                      href="/stake/rewards-received"
+                      href="/mint/benefactor-added"
                       className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     >
-                      Rewards Received
+                      Benefactor Added
                     </Link>
                   </li>
                 </ul>
@@ -290,11 +290,11 @@ export default function Navbar() {
                     </li>
                     <li>
                       <Link
-                        href="/stake/rewards-received"
+                        href="/stake/benefactor-added"
                         className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        Rewards Received
+                        Benefactor Added
                       </Link>
                     </li>
                   </ul>
