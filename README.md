@@ -104,6 +104,26 @@
 - **Blockchain**:
   - **USDe Tokens** (Ethena ecosystem)
 
+  ## Screenshots
+
+Below are the screenshots of various features in the **e-sky** application:
+
+### Minting
+![Minting](media/mints.png)
+
+### Withdrawals
+![Withdrawals](media/withdrawals.png)
+
+### Deposits
+![Deposits](media/deposits.png)
+
+### Transfers
+![Transfers](media/transfers.png)
+
+### Home Dashboard
+![Home Dashboard](media/home.png)
+
+
 ## Contributing
 
 We welcome contributions to **e-sky**! To contribute, follow these steps:
