@@ -290,7 +290,7 @@ export default function Navbar() {
                     </li>
                     <li>
                       <Link
-                        href="/stake/benefactor-added"
+                        href="/mint/benefactor-added"
                         className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
