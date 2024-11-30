@@ -1,14 +1,41 @@
 "use client";
 import React, { useState } from "react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuContent,
-} from "@radix-ui/react-navigation-menu";
 import Link from "next/link";
 import { FaRocket } from "react-icons/fa";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+
+const menuItems = [
+  {
+    label: "USDe Token",
+    links: [
+      { href: "/usde/transfers", text: "Transfers" },
+      { href: "/usde/approvals", text: "Approvals" },
+      { href: "/usde/ownership-transfers", text: "Ownership Transfers" },
+      { href: "/usde/minter-updated", text: "Minter Updates" },
+    ],
+  },
+  {
+    label: "sUSDe Token",
+    links: [
+      { href: "/stake/deposits", text: "Deposits" },
+      { href: "/stake/withdraws", text: "Withdrawals" },
+      { href: "/stake/rewards-received", text: "Rewards Received" },
+    ],
+  },
+  {
+    label: "Mint Token",
+    links: [
+      { href: "/mint/mints", text: "Mints" },
+      { href: "/mint/beneficiary-added", text: "Beneficiary Added" },
+      { href: "/mint/benefactor-added", text: "Benefactor Added" },
+    ],
+  },
+];
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -26,282 +53,73 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Desktop Navigation Menu */}
-        <NavigationMenu className="hidden md:flex justify-end flex-grow">
-          <NavigationMenuList className="flex gap-8">
-            {/* USDe Token Dropdown */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>
-                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
-                  USDe Token
-                </span>
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
-                <ul className="flex flex-col gap-3">
-                  <li>
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-8">
+          {menuItems.map((item, index) => (
+            <DropdownMenu key={index}>
+              <DropdownMenuTrigger asChild>
+                <button className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg">
+                  {item.label}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="bg-white text-gray-800 rounded-lg shadow-lg py-2"
+              >
+                {item.links.map((link) => (
+                  <DropdownMenuItem key={link.href}>
                     <Link
-                      href="/usde/transfers"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                      href={link.href}
+                      className="block px-4 py-2 text-sm hover:bg-blue-100 hover:text-blue-800"
                     >
-                      Transfers
+                      {link.text}
                     </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/usde/approvals"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Approvals
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/usde/ownership-transfers"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Ownership Transfers
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/usde/minter-updated"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Minter Updates
-                    </Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-
-            {/* sUSDe Token Dropdown */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger asChild>
-                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
-                  sUSDe Token
-                </span>
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
-                <ul className="flex flex-col gap-3">
-                  <li>
-                    <Link
-                      href="/stake/deposits"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Deposits
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/stake/withdraws"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Withdrawals
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/stake/rewards-received"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Rewards Received
-                    </Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuTrigger asChild>
-                <span className="text-lg font-semibold px-4 py-2 rounded-md transition-all duration-200 hover:text-yellow-300 hover:bg-blue-700 hover:shadow-lg cursor-pointer">
-                  Mint Token
-                </span>
-              </NavigationMenuTrigger>
-              <NavigationMenuContent className="absolute mt-2 bg-white text-gray-800 rounded-lg shadow-lg p-4 w-64">
-                <ul className="flex flex-col gap-3">
-                  <li>
-                    <Link
-                      href="/mint/mints"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Mints
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/mint/beneficiary-added"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Beneficiary Added
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/mint/benefactor-added"
-                      className="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      Benefactor Added
-                    </Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
+        </div>
 
         {/* Mobile Menu Button */}
         <button
           className="md:hidden bg-blue-700 px-3 py-2 rounded-md shadow-md focus:outline-none"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle Menu"
         >
           Menu
         </button>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Navigation */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-blue-900 text-white p-4 shadow-lg">
-          <NavigationMenu className="flex flex-col gap-4">
-            <NavigationMenuList className="flex flex-col gap-6">
-              {/* USDe Token */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger asChild>
-                  <span
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                  >
-                    USDe Token
-                  </span>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="mt-2">
-                  <ul className="flex flex-col gap-3 pl-4">
-                    <li>
+        <div className="md:hidden bg-blue-900 text-white p-4">
+          {menuItems.map((item, index) => (
+            <div key={index} className="mb-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="w-full text-left text-lg font-semibold py-2 border-b border-white hover:text-yellow-300">
+                    {item.label}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="bg-white text-gray-800 rounded-lg shadow-lg py-2 mt-1"
+                >
+                  {item.links.map((link) => (
+                    <DropdownMenuItem key={link.href}>
                       <Link
-                        href="/usde/transfers"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        href={link.href}
+                        className="block px-4 py-2 text-sm hover:bg-blue-100 hover:text-blue-800"
+                        onClick={() => setIsMobileMenuOpen(false)} // Close mobile menu on link click
                       >
-                        Transfers
+                        {link.text}
                       </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/usde/approvals"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Approvals
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/usde/ownership-transfers"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Ownership Transfers
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/usde/minter-updated"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Minter Updates
-                      </Link>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* sUSDe Token */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger asChild>
-                  <span
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                  >
-                    sUSDe Token
-                  </span>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="mt-2">
-                  <ul className="flex flex-col gap-3 pl-4">
-                    <li>
-                      <Link
-                        href="/stake/deposits"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Deposits
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/stake/withdraws"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Withdrawals
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/stake/rewards-received"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Rewards Received
-                      </Link>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuTrigger asChild>
-                  <span
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                  >
-                    Mint Token
-                  </span>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="mt-2">
-                  <ul className="flex flex-col gap-3 pl-4">
-                    <li>
-                      <Link
-                        href="/mint/mints"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Mints
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/mint/beneficiary-added"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Beneficiary Added
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/mint/benefactor-added"
-                        className="text-base font-medium hover:text-yellow-300 cursor-pointer transition-all"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Benefactor Added
-                      </Link>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ))}
         </div>
       )}
     </div>
