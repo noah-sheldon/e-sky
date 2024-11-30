@@ -2,6 +2,9 @@
 
 **e-sky** is a blockchain explorer built for **USDe tokens** in the **Ethena ecosystem**. This project leverages **Goldsky** for indexing blockchain data, offering real-time tracking and management of **USDe** token transactions, transfers, staking, and rewards.
 
+**[Try Now](https://e-sky.xyz)**
+**[Live Demo](https://e-sky.xyz)**
+
 ## Features
 
 - **USDe Token Exploration**: View transactions, transfers, approvals, and ownership transfers.
@@ -18,6 +21,7 @@
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Technologies Used](#technologies-used)
+- [Screenshots](#Screenshots)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -102,6 +106,7 @@
   - **Vercel** (Deployment)
 
 - **Blockchain**:
+
   - **USDe Tokens** (Ethena ecosystem)
 
   ## Screenshots
@@ -109,20 +114,24 @@
 Below are the screenshots of various features in the **e-sky** application:
 
 ### Minting
+
 ![Minting](media/mints.png)
 
 ### Withdrawals
+
 ![Withdrawals](media/withdrawals.png)
 
 ### Deposits
+
 ![Deposits](media/deposits.png)
 
 ### Transfers
+
 ![Transfers](media/transfers.png)
 
 ### Home Dashboard
-![Home Dashboard](media/home.png)
 
+![Home Dashboard](media/home.png)
 
 ## Contributing
 
