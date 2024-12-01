@@ -202,6 +202,10 @@ Below are the screenshots of various features in the **e-sky** application:
 
 ![Transfers](media/transfers.png)
 
+### Architecture
+
+![Architecture](media/architecture.png)
+
 ## Contributing
 
 We welcome contributions to **e-sky**! To contribute, follow these steps:
