@@ -2,8 +2,37 @@
 
 **e-sky** is a blockchain explorer built for **USDe tokens** in the **Ethena ecosystem**. This project leverages **Goldsky** for indexing blockchain data, offering real-time tracking and management of **USDe** token transactions, transfers, staking, and rewards.
 
-**[Try Now](https://e-sky.xyz)**
+**[https://e-sky.xyz](https://e-sky.xyz)**
+
 **[Live Demo](https://e-sky.xyz)**
+
+---
+
+## About USDe and Ethena Labs
+
+### **What is USDe?**
+
+**USDe** is a fully collateralized and algorithmic stablecoin created by **Ethena Labs**. Its value is pegged to the US Dollar, making it a critical asset in the Ethena ecosystem. USDe aims to provide decentralized, efficient, and reliable financial tools for users, enabling them to:
+
+- Perform seamless transactions.
+- Stake and earn rewards.
+- Participate in DeFi applications.
+
+USDe is deployed on the Ethereum blockchain and supports a broad range of financial activities within the ecosystem.
+
+### **Ethena Labs**
+
+**Ethena Labs** is a pioneering blockchain company focusing on decentralized stablecoins and financial systems. Their mission is to provide robust, algorithmically-backed financial instruments to power the decentralized finance (DeFi) sector. With **USDe** as a flagship product, Ethena Labs has introduced innovative solutions like staking mechanisms, minting processes, and high-performance liquidity tools, which are integrated into **e-sky**.
+
+Key offerings of **Ethena Labs** include:
+
+- **USDe Minting and Collateralization**: Ensures stability and reliability.
+- **sUSDe Staking**: A mechanism for users to stake their USDe tokens and earn passive income.
+- **DeFi Integration**: Seamlessly integrates USDe into the broader DeFi landscape.
+
+Learn more about Ethena Labs: [Ethena Labs Official Website](https://ethenalabs.com)
+
+---
 
 ## Features
 
@@ -14,6 +43,9 @@
 - **Responsive UI**: Optimized for both desktop and mobile platforms.
 - **Beneficiaries**: Track users or contracts that benefit from token minting, staking, or other reward mechanisms.
 - **Benefactors**: Monitor users or contracts that provide tokens, such as those who mint tokens or contribute to the staking pools.
+- **Current Price Card**: Displays the real-time price of **USDe** tokens fetched from CoinMarketCap API.
+- **Market Cap Card**: Provides the total market capitalization of **USDe** tokens.
+- **24h Volume Card**: Shows the daily trading volume for **USDe** tokens.
 
 ## Table of Contents
 
@@ -61,7 +93,21 @@
    npm install
    ```
 
-4. **Run the Development Server**:
+4. **Steps to Set Environment Variables**
+
+   5. Create a new file named `.env.local` in the root of your project directory.
+   6. Copy the structure from `.env.example` into your `.env.local` file.
+   7. Fill in the necessary values for the variables:
+
+   ```bash
+   NEXT_PUBLIC_USDE_MAINNET_SUBGRAPH_URI=YOUR_MAINNET_SUBGRAPH_URI
+   NEXT_PUBLIC_USDE_STAKE_SUBGRAPH_URI=YOUR_STAKE_SUBGRAPH_URI
+   NEXT_PUBLIC_USDE_MINT_SUBGRAPH_URI=YOUR_MINT_SUBGRAPH_URI
+   COINMARKETCAP_API_KEY=YOUR_COINMARKETCAP_API_KEY
+   COINMARKETCAP_BASE_URL=YOUR_COINMARKETCAP_BASE_URL
+   ```
+
+5. **Run the Development Server**:
 
    Using **Yarn**:
 
@@ -75,7 +121,7 @@
    npm run dev
    ```
 
-5. **Access the Application**:  
+6. **Access the Application**:
    Open your browser and navigate to [http://localhost:3000](http://localhost:3000).
 
 ## Usage
@@ -103,15 +149,42 @@
   - **GraphQL** (Query Subgraph)
   - **JavaScript** (API Support)
   - **Goldsky** (Blockchain Data Indexing)
+  - **CoinMarketCap API** (External API for price, market cap, and volume)
   - **Vercel** (Deployment)
 
 - **Blockchain**:
 
   - **USDe Tokens** (Ethena ecosystem)
 
-  ## Screenshots
+---
+
+## How USDe, Ethena Labs, and Goldsky are Used
+
+### **USDe in the App**
+
+- **Token Management**: View and manage USDe token transactions, transfers, and ownership changes.
+- **Minting & Staking**: Perform minting operations and stake USDe tokens to earn rewards.
+- **Financial Insights**: Monitor market data like price, market cap, and trading volume for USDe tokens.
+
+### **Ethena Labs Integration**
+
+- **Staking Mechanism**: Ethena's sUSDe staking system allows users to deposit USDe and earn rewards.
+- **Stablecoin Management**: Ensures that the app reflects the latest functionality for collateralized and algorithmically backed USDe tokens.
+
+### **Goldsky Usage**
+
+- **Blockchain Indexing**: Goldsky's indexing service powers real-time data retrieval for transactions, staking, and transfers.
+- **Graph Queries**: Enables efficient filtering and display of blockchain data.
+
+---
+
+## Screenshots
 
 Below are the screenshots of various features in the **e-sky** application:
+
+### Home Dashboard
+
+![Home Dashboard](media/home.png)
 
 ### Minting
 
@@ -128,10 +201,6 @@ Below are the screenshots of various features in the **e-sky** application:
 ### Transfers
 
 ![Transfers](media/transfers.png)
-
-### Home Dashboard
-
-![Home Dashboard](media/home.png)
 
 ## Contributing
 
@@ -156,3 +225,7 @@ For questions or support, feel free to contact us:
 - [Noah Sheldon](https://www.linkedin.com/in/noah--sheldon/)
 - [GitHub](https://github.com/noah-sheldon/e-sky)
 - [X](https://x.com/noah__sheldon/)
+
+```
+
+```
